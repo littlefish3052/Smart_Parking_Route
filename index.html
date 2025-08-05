@@ -874,3 +874,384 @@
         location: location,
         radius: maxDistance,
         keyword: 'parking'
+      };
+
+      placesService.nearbySearch(request, (results, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK) {
+          displayParkingResults(results, location);
+          parkingSearchStatus.innerText = `✅ Found ${results.length} parking locations`;
+          parkingSearchStatus.className = 'success';
+          parkingResultsSection.style.display = 'block';
+        } else {
+          parkingSearchStatus.innerText = '❌ No parking spots found in this area.';
+          parkingSearchStatus.className = 'error';
+        }
+        searchParkingBtn.disabled = false;
+      });
+    }
+
+    function displayParkingResults(results, searchLocation) {
+      const priceRange = document.getElementById('priceRangeSelect').value;
+      const parkingType = document.getElementById('parkingTypeSelect').value;
+      
+      // Filter results based on preferences
+      let filteredResults = results.filter(place => {
+        if (parkingType !== 'all') {
+          const name = place.name.toLowerCase();
+          switch (parkingType) {
+            case 'street':
+              return name.includes('street') || name.includes('meter');
+            case 'garage':
+              return name.includes('garage') || name.includes('building');
+            case 'lot':
+              return name.includes('lot') || name.includes('park');
+            case 'private':
+              return name.includes('private') || name.includes('secure');
+          }
+        }
+        return true;
+      });
+
+      // Simulate parking availability and pricing data
+      const parkingData = filteredResults.slice(0, 8).map((place, index) => {
+        const distance = google.maps.geometry.spherical.computeDistanceBetween(
+          searchLocation, place.geometry.location
+        );
+        
+        return {
+          ...place,
+          distance: Math.round(distance),
+          available: Math.floor(Math.random() * 20) + 1,
+          total: Math.floor(Math.random() * 30) + 20,
+          price: (Math.random() * 15 + 2).toFixed(2),
+          rating: (Math.random() * 2 + 3).toFixed(1),
+          isEcoFriendly: Math.random() > 0.7,
+          hasEVCharging: Math.random() > 0.8
+        };
+      });
+
+      // Update results count
+      document.getElementById('parkingResultsCount').innerText = 
+        `Found ${parkingData.length} available parking spots`;
+
+      // Create parking spot cards
+      let resultsHTML = '';
+      parkingData.forEach((spot, index) => {
+        const availability = ((spot.available / spot.total) * 100).toFixed(0);
+        const availabilityClass = availability > 50 ? 'high' : availability > 20 ? 'medium' : 'low';
+        
+        resultsHTML += `
+          <div class="parking-spot">
+            <h5>🅿️ ${spot.name}</h5>
+            <div class="parking-info">
+              <span>Distance:</span>
+              <span>${spot.distance}m</span>
+            </div>
+            <div class="parking-info">
+              <span>Available:</span>
+              <span class="availability-${availabilityClass}">${spot.available}/${spot.total} spots</span>
+            </div>
+            <div class="parking-info">
+              <span>Price:</span>
+              <span>${spot.price}/hour</span>
+            </div>
+            <div class="parking-info">
+              <span>Rating:</span>
+              <span>⭐ ${spot.rating}/5</span>
+            </div>
+            ${spot.isEcoFriendly ? '<div class="eco-badge">🌱 Eco-Friendly</div>' : ''}
+            ${spot.hasEVCharging ? '<div class="ev-badge">⚡ EV Charging</div>' : ''}
+            <button class="book-spot-btn" onclick="bookParkingSpot('${spot.place_id}', '${spot.name}')">
+              Book This Spot
+            </button>
+          </div>
+        `;
+      });
+
+      parkingResultsGrid.innerHTML = resultsHTML;
+
+      // Add markers to map
+      parkingData.forEach((spot, index) => {
+        const marker = new google.maps.Marker({
+          position: spot.geometry.location,
+          map: parkingMap,
+          title: `${spot.name} - ${spot.available}/${spot.total} available`,
+          icon: {
+            url: spot.available > 5 ? 
+              'https://maps.google.com/mapfiles/ms/icons/green-dot.png' :
+              spot.available > 0 ? 
+              'https://maps.google.com/mapfiles/ms/icons/yellow-dot.png' :
+              'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+            scaledSize: new google.maps.Size(32, 32)
+          }
+        });
+
+        // Add info window
+        const infoWindow = new google.maps.InfoWindow({
+          content: `
+            <div style="padding: 10px; max-width: 200px;">
+              <h4>${spot.name}</h4>
+              <p><strong>Available:</strong> ${spot.available}/${spot.total}</p>
+              <p><strong>Price:</strong> ${spot.price}/hour</p>
+              <p><strong>Distance:</strong> ${spot.distance}m</p>
+              ${spot.isEcoFriendly ? '<p>🌱 Eco-Friendly</p>' : ''}
+              ${spot.hasEVCharging ? '<p>⚡ EV Charging Available</p>' : ''}
+            </div>
+          `
+        });
+
+        marker.addListener('click', () => {
+          infoWindow.open(parkingMap, marker);
+        });
+
+        parkingMarkers.push(marker);
+      });
+    }
+
+    function bookParkingSpot(placeId, name) {
+      if (!isAuthenticated) {
+        alert('Please login to book parking spots.');
+        return;
+      }
+
+      debugLog('Booking parking spot', { placeId, name });
+      
+      // Simulate booking process
+      const confirmBooking = confirm(`Book parking spot at ${name}?`);
+      if (confirmBooking) {
+        // Here you would integrate with your booking API
+        alert(`Booking confirmed for ${name}! Check your bookings in the Booking Management tab.`);
+        
+        // You could also add this to a bookings array and update the UI
+        debugLog('Parking spot booked successfully');
+      }
+    }
+
+    // Melbourne-specific parking data simulation
+    function generateMelbourneParkingData() {
+      const melbourneParkingSpots = [
+        {
+          name: "Melbourne Central Car Park",
+          location: { lat: -37.8101, lng: 144.9634 },
+          type: "garage",
+          price: 8.50,
+          available: 45,
+          total: 200,
+          isEcoFriendly: true,
+          hasEVCharging: true
+        },
+        {
+          name: "Collins Street Parking",
+          location: { lat: -37.8136, lng: 144.9631 },
+          type: "street",
+          price: 6.20,
+          available: 8,
+          total: 25,
+          isEcoFriendly: false,
+          hasEVCharging: false
+        },
+        {
+          name: "Federation Square Car Park",
+          location: { lat: -37.8179, lng: 144.9690 },
+          type: "garage",
+          price: 12.00,
+          available: 23,
+          total: 150,
+          isEcoFriendly: true,
+          hasEVCharging: true
+        },
+        {
+          name: "Bourke Street Mall Parking",
+          location: { lat: -37.8136, lng: 144.9652 },
+          type: "street",
+          price: 5.80,
+          available: 3,
+          total: 15,
+          isEcoFriendly: false,
+          hasEVCharging: false
+        },
+        {
+          name: "Queen Victoria Market Car Park",
+          location: { lat: -37.8076, lng: 144.9568 },
+          type: "lot",
+          price: 4.50,
+          available: 67,
+          total: 300,
+          isEcoFriendly: true,
+          hasEVCharging: false
+        }
+      ];
+
+      return melbourneParkingSpots;
+    }
+
+    // Load Melbourne CBD parking data on parking tab
+    function loadMelbourneParkingData() {
+      const melbourneParkingSpots = generateMelbourneParkingData();
+      
+      // Clear existing markers
+      parkingMarkers.forEach(marker => marker.setMap(null));
+      parkingMarkers = [];
+
+      // Add Melbourne parking spots to map
+      melbourneParkingSpots.forEach(spot => {
+        const marker = new google.maps.Marker({
+          position: spot.location,
+          map: parkingMap,
+          title: `${spot.name} - ${spot.available}/${spot.total} available`,
+          icon: {
+            url: spot.available > 20 ? 
+              'https://maps.google.com/mapfiles/ms/icons/green-dot.png' :
+              spot.available > 5 ? 
+              'https://maps.google.com/mapfiles/ms/icons/yellow-dot.png' :
+              'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+            scaledSize: new google.maps.Size(32, 32)
+          }
+        });
+
+        const infoWindow = new google.maps.InfoWindow({
+          content: `
+            <div style="padding: 10px; max-width: 200px;">
+              <h4>${spot.name}</h4>
+              <p><strong>Available:</strong> ${spot.available}/${spot.total}</p>
+              <p><strong>Price:</strong> ${spot.price}/hour</p>
+              <p><strong>Type:</strong> ${spot.type}</p>
+              ${spot.isEcoFriendly ? '<p>🌱 Eco-Friendly</p>' : ''}
+              ${spot.hasEVCharging ? '<p>⚡ EV Charging Available</p>' : ''}
+            </div>
+          `
+        });
+
+        marker.addListener('click', () => {
+          infoWindow.open(parkingMap, marker);
+        });
+
+        parkingMarkers.push(marker);
+      });
+
+      parkingSearchStatus.innerText = '✅ Showing Melbourne CBD parking spots';
+      parkingSearchStatus.className = 'success';
+      
+      // Display in results grid
+      displayMelbourneParkingResults(melbourneParkingSpots);
+    }
+
+    function displayMelbourneParkingResults(spots) {
+      document.getElementById('parkingResultsCount').innerText = 
+        `Showing ${spots.length} Melbourne CBD parking locations`;
+
+      let resultsHTML = '';
+      spots.forEach(spot => {
+        const availability = ((spot.available / spot.total) * 100).toFixed(0);
+        const availabilityClass = availability > 50 ? 'high' : availability > 20 ? 'medium' : 'low';
+        
+        resultsHTML += `
+          <div class="parking-spot">
+            <h5>🅿️ ${spot.name}</h5>
+            <div class="parking-info">
+              <span>Type:</span>
+              <span>${spot.type.charAt(0).toUpperCase() + spot.type.slice(1)}</span>
+            </div>
+            <div class="parking-info">
+              <span>Available:</span>
+              <span class="availability-${availabilityClass}">${spot.available}/${spot.total} spots</span>
+            </div>
+            <div class="parking-info">
+              <span>Price:</span>
+              <span>${spot.price}/hour</span>
+            </div>
+            ${spot.isEcoFriendly ? '<div class="eco-badge">🌱 Eco-Friendly</div>' : ''}
+            ${spot.hasEVCharging ? '<div class="ev-badge">⚡ EV Charging</div>' : ''}
+            <button class="book-spot-btn" onclick="bookParkingSpot('${spot.name}', '${spot.name}')">
+              Book This Spot
+            </button>
+          </div>
+        `;
+      });
+
+      parkingResultsGrid.innerHTML = resultsHTML;
+      parkingResultsSection.style.display = 'block';
+    }
+
+    // Enhanced tab switching with parking data loading
+    const originalSwitchTab = switchTab;
+    switchTab = function(activeTab) {
+      originalSwitchTab(activeTab);
+      
+      if (activeTab === 'parking') {
+        // Load Melbourne CBD parking data by default
+        setTimeout(() => {
+          loadMelbourneParkingData();
+        }, 500);
+      }
+    };
+
+    // Add some additional CSS for availability indicators and badges
+    const additionalStyles = `
+      <style>
+        .availability-high { color: #4caf50; font-weight: bold; }
+        .availability-medium { color: #ff9800; font-weight: bold; }
+        .availability-low { color: #f44336; font-weight: bold; }
+        
+        .eco-badge, .ev-badge {
+          display: inline-block;
+          background: #4caf50;
+          color: white;
+          padding: 0.25rem 0.5rem;
+          border-radius: 6px;
+          font-size: 0.8rem;
+          margin: 0.25rem 0.25rem 0.25rem 0;
+        }
+        
+        .ev-badge {
+          background: #2196f3;
+        }
+        
+        .parking-info {
+          font-size: 0.9rem;
+          margin-bottom: 0.5rem;
+        }
+        
+        .parking-info span:first-child {
+          font-weight: 500;
+          color: #666;
+        }
+        
+        .parking-info span:last-child {
+          font-weight: 600;
+        }
+      </style>
+    `;
+
+    document.head.insertAdjacentHTML('beforeend', additionalStyles);
+
+    // Error handling for Google Maps API
+    window.gm_authFailure = function() {
+      debugLog('Google Maps API authentication failed');
+      document.getElementById('routeMap').innerHTML = 
+        '<div style="display: flex; align-items: center; justify-content: center; height: 100%; background: #f5f5f5; color: #666;"><p>⚠️ Google Maps API key required. Please add your API key to enable maps.</p></div>';
+      document.getElementById('parkingMap').innerHTML = 
+        '<div style="display: flex; align-items: center; justify-content: center; height: 100%; background: #f5f5f5; color: #666;"><p>⚠️ Google Maps API key required. Please add your API key to enable maps.</p></div>';
+    };
+
+    // Initialize app when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      debugLog('Smart Parking Route app initialized');
+      
+      // If Google Maps fails to load, show fallback
+      setTimeout(() => {
+        if (typeof google === 'undefined') {
+          debugLog('Google Maps API not loaded, showing fallback');
+          document.getElementById('routeMap').innerHTML = 
+            '<div style="display: flex; align-items: center; justify-content: center; height: 100%; background: #f5f5f5; color: #666; flex-direction: column;"><p>🗺️ Interactive Map</p><p style="font-size: 0.9rem; margin-top: 0.5rem;">Add your Google Maps API key to enable full functionality</p></div>';
+          document.getElementById('parkingMap').innerHTML = 
+            '<div style="display: flex; align-items: center; justify-content: center; height: 100%; background: #f5f5f5; color: #666; flex-direction: column;"><p>🗺️ Parking Map</p><p style="font-size: 0.9rem; margin-top: 0.5rem;">Add your Google Maps API key to enable full functionality</p></div>';
+          
+          // Still initialize auth for demo
+          initAuth();
+        }
+      }, 3000);
+    });
+  </script>
+</body>
+</html>
