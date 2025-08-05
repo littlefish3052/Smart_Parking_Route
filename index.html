@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Smart Parking Route - Intelligent Parking Solutions</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="logo">🅿️ Smart Parking Route</div>
+    <div class="user-section">
+      <div id="userGreeting" class="user-greeting">Loading...</div>
+      <button id="logoutBtn" class="logout-btn" style="display: none;">Logout</button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="main-container">
+    <!-- Authentication Status -->
+    <div id="authSection" class="auth-section">
+      <h3>🔐 Authentication Status</h3>
+      <div id="authStatus">Checking authentication status...</div>
+      <div id="debugInfo" class="debug" style="display: none;"></div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tab-container">
+      <div id="routeTabBtn" class="tab-button active">🗺️ Route Planning</div>
+      <div id="parkingTabBtn" class="tab-button">🅿️ Parking Search</div>
+      <div id="bookingTabBtn" class="tab-button">📅 Booking Management</div>
+      <div id="historyTabBtn" class="tab-button">📋 Trip History</div>
+      <div id="preferencesTabBtn" class="tab-button">⚙️ Preferences</div>
+      <div id="analyticsTabBtn" class="tab-button">📊 Analytics</div>
+      <div id="notificationTabBtn" class="tab-button">🔔 Notifications</div>
+    </div>
+
+    <!-- Route Planning Tab -->
+    <div id="routeTabContent" class="tab-content active">
+      <div class="route-section">
+        <h3>🗺️ Plan Your Smart Route</h3>
+        
+        <div class="route-input-group">
+          <input type="text" id="startLocationInput" placeholder="Enter starting location" />
+          <input type="text" id="destinationInput" placeholder="Enter destination" />
+          <button id="findRouteBtn">Find Best Route</button>
+        </div>
+        
+        <div class="route-options">
+          <label>
+            <input type="checkbox" id="includeParking" checked> Include parking spots
+          </label>
+          <label>
+            <input type="checkbox" id="avoidToll"> Avoid toll roads
+          </label>
+          <label>
+            <input type="checkbox" id="ecoFriendly"> Eco-friendly route
+          </label>
+        </div>
+        
+        <div id="routeStatus" class="info">Enter locations to plan your route</div>
+        
+        <!-- Route Results -->
+        <div id="routeResults" class="results-section" style="display: none;">
+          <h4>Suggested Routes</h4>
+          <div id="routesList" class="routes-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Parking Search Tab -->
+    <div id="parkingTabContent" class="tab-content">
+      <h3>🅿️ Find Parking Spots</h3>
+      
+      <!-- Search Section -->
+      <div class="search-section">
+        <h4>Search for Parking</h4>
+        <div class="search-input-group">
+          <input type="text" id="parkingLocationInput" placeholder="Enter location or address" />
+          <select id="parkingTypeSelect">
+            <option value="all">All Types</option>
+            <option value="street">Street Parking</option>
+            <option value="garage">Parking Garage</option>
+            <option value="lot">Parking Lot</option>
+            <option value="private">Private Parking</option>
+          </select>
+          <button id="searchParkingBtn">Search Parking</button>
+        </div>
+        
+        <div class="parking-filters">
+          <label>Max Distance: 
+            <select id="maxDistanceSelect">
+              <option value="0.5">0.5 km</option>
+              <option value="1" selected>1 km</option>
+              <option value="2">2 km</option>
+              <option value="5">5 km</option>
+            </select>
+          </label>
+          
+          <label>Price Range: 
+            <select id="priceRangeSelect">
+              <option value="all">Any Price</option>
+              <option value="free">Free</option>
+              <option value="low">$0-$5/hour</option>
+              <option value="medium">$5-$15/hour</option>
+              <option value="high">$15+/hour</option>
+            </select>
+          </label>
+        </div>
+        
+        <div id="parkingSearchStatus" class="info">Ready to search for parking spots</div>
+      </div>
+
+      <!-- Parking Results Section -->
+      <div id="parkingResultsSection" class="results-section" style="display: none;">
+        <h4>Available Parking Spots</h4>
+        <div id="parkingResultsCount" class="results-count"></div>
+        <div id="parkingResultsGrid" class="parking-results-grid"></div>
+      </div>
+    </div>
+
+    <!-- Booking Management Tab -->
+    <div id="bookingTabContent" class="tab-content">
+      <h3>📅 Manage Your Bookings</h3>
+      
+      <!-- Current Bookings -->
+      <div class="booking-section">
+        <h4>Current Bookings</h4>
+        <div id="currentBookings" class="bookings-list">
+          <div class="info">Loading your current bookings...</div>
+        </div>
+      </div>
+      
+      <!-- Make New Booking -->
+      <div class="booking-section">
+        <h4>Make New Booking</h4>
+        <div class="booking-form">
+          <input type="text" id="bookingLocationInput" placeholder="Parking location" />
+          <input type="datetime-local" id="bookingStartTime" />
+          <input type="datetime-local" id="bookingEndTime" />
+          <button id="makeBookingBtn">Book Parking Spot</button>
+        </div>
+        <div id="bookingStatus" class="info">Fill in the details to make a new booking</div>
+      </div>
+      
+      <!-- Booking History -->
+      <div class="booking-section">
+        <h4>Booking History</h4>
+        <div id="bookingHistory" class="bookings-list">
+          <div class="info">Loading your booking history...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trip History Tab -->
+    <div id="historyTabContent" class="tab-content">
+      <h3>📋 Your Trip History</h3>
+      
+      <!-- Trip Stats -->
+      <div class="stats-section">
+        <div class="stat-card">
+          <h4>Total Trips</h4>
+          <div id="totalTrips" class="stat-value">0</div>
+        </div>
+        <div class="stat-card">
+          <h4>Distance Traveled</h4>
+          <div id="totalDistance" class="stat-value">0 km</div>
+        </div>
+        <div class="stat-card">
+          <h4>Parking Sessions</h4>
+          <div id="totalParkingSessions" class="stat-value">0</div>
+        </div>
+        <div class="stat-card">
+          <h4>Money Saved</h4>
+          <div id="moneySaved" class="stat-value">$0</div>
+        </div>
+      </div>
+      
+      <!-- Trip List -->
+      <div class="trip-section">
+        <h4>Recent Trips</h4>
+        <div class="trip-filters">
+          <select id="tripFilterSelect">
+            <option value="all">All Trips</option>
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+            <option value="year">This Year</option>
+          </select>
+          <button id="exportTripsBtn">Export Data</button>
+        </div>
+        <div id="tripsList" class="trips-list">
+          <div class="info">Loading your trip history...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preferences Tab -->
+    <div id="preferencesTabContent" class="tab-content">
+      <h3>⚙️ App Preferences</h3>
+      
+      <!-- Route Preferences -->
+      <div class="preferences-section">
+        <h4>Route Preferences</h4>
+        <div class="preference-group">
+          <label>
+            <input type="radio" name="routeType" value="fastest" checked> Fastest route
+          </label>
+          <label>
+            <input type="radio" name="routeType" value="shortest"> Shortest route
+          </label>
+          <label>
+            <input type="radio" name="routeType" value="eco"> Most eco-friendly
+          </label>
+        </div>
+        
+        <div class="preference-group">
+          <label>
+            <input type="checkbox" id="avoidHighways"> Avoid highways
+          </label>
+          <label>
+            <input type="checkbox" id="avoidTolls"> Avoid toll roads
+          </label>
+          <label>
+            <input type="checkbox" id="includeTraffic" checked> Consider real-time traffic
+          </label>
+        </div>
+      </div>
+      
+      <!-- Parking Preferences -->
+      <div class="preferences-section">
+        <h4>Parking Preferences</h4>
+        <div class="preference-group">
+          <label>Preferred parking type:
+            <select id="preferredParkingType">
+              <option value="any">Any available</option>
+              <option value="covered">Covered parking</option>
+              <option value="outdoor">Outdoor parking</option>
+              <option value="secure">Secure/Gated</option>
+            </select>
+          </label>
+        </div>
+        
+        <div class="preference-group">
+          <label>Maximum walking distance:
+            <select id="maxWalkingDistance">
+              <option value="100">100m</option>
+              <option value="200" selected>200m</option>
+              <option value="500">500m</option>
+              <option value="1000">1km</option>
+            </select>
+          </label>
+        </div>
+      </div>
+      
+      <!-- Notification Preferences -->
+      <div class="preferences-section">
+        <h4>Notification Preferences</h4>
+        <div class="preference-group">
+          <label>
+            <input type="checkbox" id="notifyBookingReminder" checked> Booking reminders
+          </label>
+          <label>
+            <input type="checkbox" id="notifyParkingExpiry" checked> Parking expiry alerts
+          </label>
+          <label>
+            <input type="checkbox" id="notifyTrafficUpdates"> Traffic updates
+          </label>
+          <label>
+            <input type="checkbox" id="notifyParkingDeals"> Parking deals & offers
+          </label>
+        </div>
+      </div>
+      
+      <div class="preferences-actions">
+        <button id="savePreferencesBtn">Save Preferences</button>
+        <button id="resetPreferencesBtn">Reset to Default</button>
+      </div>
+      
+      <div id="preferencesStatus" class="info">Adjust your preferences above</div>
+    </div>
+
+    <!-- Analytics Tab -->
+    <div id="analyticsTabContent" class="tab-content">
+      <h3>📊 Usage Analytics</h3>
+      
+      <!-- Analytics Charts -->
+      <div class="analytics-section">
+        <div class="chart-container">
+          <h4>Monthly Usage</h4>
+          <div id="monthlyChart" class="chart-placeholder">Chart will be displayed here</div>
+        </div>
+        
+        <div class="chart-container">
+          <h4>Parking Type Distribution</h4>
+          <div id="parkingTypeChart" class="chart-placeholder">Chart will be displayed here</div>
+        </div>
+      </div>
+      
+      <!-- Analytics Stats -->
+      <div class="analytics-stats">
+        <div class="analytics-card">
+          <h5>Average Trip Duration</h5>
+          <div id="avgTripDuration" class="analytics-value">0 min</div>
+        </div>
+        <div class="analytics-card">
+          <h5>Most Used Route</h5>
+          <div id="mostUsedRoute" class="analytics-value">-</div>
+        </div>
+        <div class="analytics-card">
+          <h5>Favorite Parking Spot</h5>
+          <div id="favoriteParkingSpot" class="analytics-value">-</div>
+        </div>
+        <div class="analytics-card">
+          <h5>CO2 Saved This Month</h5>
+          <div id="co2Saved" class="analytics-value">0 kg</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notifications Tab -->
+    <div id="notificationTabContent" class="tab-content">
+      <h3>🔔 Notifications</h3>
+      
+      <!-- Notification Settings -->
+      <div class="notification-section">
+        <h4>Notification Settings</h4>
+        <div class="notification-toggle">
+          <label>
+            <input type="checkbox" id="enableNotifications" checked> Enable notifications
+          </label>
+        </div>
+      </div>
+      
+      <!-- Recent Notifications -->
+      <div class="notification-section">
+        <h4>Recent Notifications</h4>
+        <div id="notificationsList" class="notifications-list">
+          <div class="info">Loading your notifications...</div>
+        </div>
+      </div>
+      
+      <!-- Clear All -->
+      <div class="notification-actions">
+        <button id="clearAllNotificationsBtn">Clear All Notifications</button>
+        <button id="markAllReadBtn">Mark All as Read</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Cognito Configuration - Updated for Smart Parking Route
+    const COGNITO_CONFIG = {
+      userPoolId: 'ap-southeast-2_WUGCMLsul',
+      clientId: '142bk2r1bg5rjpfmbstismulh9',
+      region: 'ap-southeast-2',
+      domain: 'cognito-idp.ap-southeast-2.amazonaws.com',
+      redirectUri: 'https://main.d1n04r9iix2vet.amplifyapp.com/',
+      logoutUri: 'https://main.d1n04r9iix2vet.amplifyapp.com/',
+      issuerURL: 'https://cognito-idp.ap-southeast-2.amazonaws.com/ap-southeast-2_WUGCMLsul',
+      scopes: ['openid', 'email', 'phone']
+    };
+
+    // API Endpoints for Smart Parking Route
+    const API_ENDPOINTS = {
+      routePlanning: 'https://api.smartparkingroute.com/routes',
+      parkingSearch: 'https://api.smartparkingroute.com/parking/search',
+      bookingManagement: 'https://api.smartparkingroute.com/bookings',
+      tripHistory: 'https://api.smartparkingroute.com/trips',
+      userPreferences: 'https://api.smartparkingroute.com/preferences',
+      analytics: 'https://api.smartparkingroute.com/analytics',
+      notifications: 'https://api.smartparkingroute.com/notifications'
+    };
+
+    // Global variables
+    let userTokens = null;
+    let isAuthenticated = false;
+    let userPreferences = {};
+
+    // DOM elements
+    const tabs = {
+      route: { btn: document.getElementById('routeTabBtn'), content: document.getElementById('routeTabContent') },
+      parking: { btn: document.getElementById('parkingTabBtn'), content: document.getElementById('parkingTabContent') },
+      booking: { btn: document.getElementById('bookingTabBtn'), content: document.getElementById('bookingTabContent') },
+      history: { btn: document.getElementById('historyTabBtn'), content: document.getElementById('historyTabContent') },
+      preferences: { btn: document.getElementById('preferencesTabBtn'), content: document.getElementById('preferencesTabContent') },
+      analytics: { btn: document.getElementById('analyticsTabBtn'), content: document.getElementById('analyticsTabContent') },
+      notification: { btn: document.getElementById('notificationTabBtn'), content: document.getElementById('notificationTabContent') }
+    };
+
+    const authSection = document.getElementById('authSection');
+    const authStatus = document.getElementById('authStatus');
+    const userGreeting = document.getElementById('userGreeting');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const debugInfo = document.getElementById('debugInfo');
+
+    // Debug mode
+    const DEBUG_MODE = true;
+
+    function debugLog(message, data = null) {
+      if (DEBUG_MODE) {
+        console.log(`[Smart Parking Route DEBUG] ${message}`, data);
+        if (debugInfo) {
+          debugInfo.style.display = 'block';
+          debugInfo.innerHTML += `<div>${new Date().toLocaleTimeString()}: ${message}</div>`;
+          if (data) {
+            debugInfo.innerHTML += `<div>Data: ${JSON.stringify(data, null, 2)}</div>`;
+          }
+        }
+      }
+    }
+
+    // Tab switching logic
+    function switchTab(activeTab) {
+      // Remove active class from all tabs
+      Object.values(tabs).forEach(tab => {
+        tab.btn.classList.remove('active');
+        tab.content.classList.remove('active');
+      });
+      
+      // Add active class to selected tab
+      tabs[activeTab].btn.classList.add('active');
+      tabs[activeTab].content.classList.add('active');
+      
+      // Load tab-specific data
+      loadTabData(activeTab);
+    }
+
+    // Load data when switching tabs
+    function loadTabData(tabName) {
+      switch(tabName) {
+        case 'route':
+          // Initialize route planning
+          break;
+        case 'parking':
+          loadParkingData();
+          break;
+        case 'booking':
+          loadBookingData();
+          break;
+        case 'history':
+          loadTripHistory();
+          break;
+        case 'preferences':
+          loadUserPreferences();
+          break;
+        case 'analytics':
+          loadAnalytics();
+          break;
+        case 'notification':
+          loadNotifications();
+          break;
+      }
+    }
+
+    // Add event listeners for tabs
+    tabs.route.btn.addEventListener('click', () => switchTab('route'));
+    tabs.parking.btn.addEventListener('click', () => switchTab('parking'));
+    tabs.booking.btn.addEventListener('click', () => switchTab('booking'));
+    tabs.history.btn.addEventListener('click', () => switchTab('history'));
+    tabs.preferences.btn.addEventListener('click', () => switchTab('preferences'));
+    tabs.analytics.btn.addEventListener('click', () => switchTab('analytics'));
+    tabs.notification.btn.addEventListener('click', () => switchTab('notification'));
+
+    // Extract tokens from URL fragment (OIDC Implicit Flow)
+    function getTokensFromUrl() {
+      debugLog('Checking URL for OIDC tokens');
+      
+      let params = new URLSearchParams(window.location.hash.substring(1));
+      if (!params.has('access_token')) {
+        params = new URLSearchParams(window.location.search);
+      }
+      
+      const accessToken = params.get('access_token');
+      const idToken = params.get('id_token');
+      const tokenType = params.get('token_type');
+      const expiresIn = params.get('expires_in');
+      const code = params.get('code'); // For Authorization Code flow
+      
+      debugLog('URL parameters found:', {
+        hasAccessToken: !!accessToken,
+        hasIdToken: !!idToken,
+        hasCode: !!code,
+        tokenType,
+        expiresIn
+      });
+      
+      if (accessToken && idToken) {
+        const tokens = {
+          accessToken,
+          idToken,
+          tokenType: tokenType || 'Bearer',
+          expiresIn: expiresIn ? parseInt(expiresIn) : 3600,
+          timestamp: Date.now()
+        };
+        debugLog('Extracted OIDC tokens successfully', tokens);
+        return tokens;
+      }
+      
+      debugLog('No valid tokens found in URL');
+      return null;
+    }
+
+    // Get stored tokens from localStorage
+    function getStoredTokens() {
+      try {
+        const stored = localStorage.getItem('smartParkingTokens');
+        if (stored) {
+          const tokens = JSON.parse(stored);
+          debugLog('Retrieved stored tokens', tokens);
+          return tokens;
+        }
+      } catch (e) {
+        debugLog('Error parsing stored tokens', e);
+        localStorage.removeItem('smartParkingTokens');
+      }
+      debugLog('No stored tokens found');
+      return null;
+    }
+
+    // Store tokens to localStorage
+    function storeTokens(tokens) {
+      debugLog('Storing tokens', tokens);
+      localStorage.setItem('smartParkingTokens', JSON.stringify(tokens));
+    }
+
+    // Decode JWT token payload
+    function decodeJWT(token) {
+      try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        return JSON.parse(jsonPayload);
+      } catch (e) {
+        debugLog('Error decoding JWT', e);
+        return null;
+      }
+    }
+
+    // Extract user information from tokens
+    function extractUserInfo(tokens) {
+      let userInfo = {
+        username: 'Unknown User',
+        email: null,
+        name: null,
+        phone: null
+      };
+
+      try {
+        // Try to decode ID token first (contains user attributes)
+        if (tokens.idToken) {
+          const idTokenPayload = decodeJWT(tokens.idToken);
+          debugLog('ID Token payload:', idTokenPayload);
+          
+          if (idTokenPayload) {
+            // Priority order for username: name > given_name > email > cognito:username
+            userInfo.username = 
+              idTokenPayload.name ||
+              idTokenPayload.given_name ||
+              idTokenPayload.email ||
+              idTokenPayload['cognito:username'] ||
+              'Unknown User';
+              
+            userInfo.email = idTokenPayload.email;
+            userInfo.name = idTokenPayload.name;
+            userInfo.phone = idTokenPayload.phone_number;
+          }
+        }
+
+        // Fallback to access token if needed
+        if (userInfo.username === 'Unknown User' && tokens.accessToken) {
+          const accessTokenPayload = decodeJWT(tokens.accessToken);
+          debugLog('Access Token payload:', accessTokenPayload);
+          
+          if (accessTokenPayload) {
+            userInfo.username = 
+              accessTokenPayload.username ||
+              accessTokenPayload['cognito:username'] ||
+              'Unknown User';
+          }
+        }
+
+        debugLog('Extracted user info:', userInfo);
+        return userInfo;
+        
+      } catch (e) {
+        debugLog('Error extracting user info from tokens', e);
+        return userInfo;
+      }
+    }
+
+    // Validate token expiration
+    async function validateToken(token) {
+      try {
+        const payload = decodeJWT(token);
+        if (!payload) return false;
+        
+        const now = Math.floor(Date.now() / 1000);
+        const isValid = payload.exp > now;
+        
+        debugLog('Token validation result', {
+          exp: payload.exp,
+          now: now,
+          isValid: isValid,
+          timeUntilExpiry: payload.exp - now
+        });
+        
+        return isValid;
+      } catch (e) {
+        debugLog('Error validating token', e);
+        return false;
+      }
+    }
+
+    // Initialize authentication
+    async function initAuth() {
+      debugLog('Initializing Smart Parking Route authentication');
+      
+      let tokens = getTokensFromUrl();
+      
+      if (tokens) {
+        storeTokens(tokens);
+        const cleanUrl = window.location.protocol + '//' + window.location.host + window.location.pathname;
+        window.history.replaceState({}, document.title, cleanUrl);
+        debugLog('URL cleaned after token extraction');
+      } else {
+        tokens = getStoredTokens();
+      }
+
+      if (tokens) {
+        const isValid = await validateToken(tokens.accessToken);
+        if (isValid) {
+          userTokens = tokens;
+          isAuthenticated = true;
+          
+          // Extract user info from tokens
+          const userInfo = extractUserInfo(tokens);
+          
+          // Update header
+          userGreeting.innerHTML = `Welcome, <strong>${userInfo.username}</strong>`;
+          logoutBtn.style.display = 'inline-block';
+          
+          // Update auth status
+          authStatus.innerHTML = `✅ Authenticated as ${userInfo.username}`;
+          authSection.classList.add('authenticated');
+          
+          // Load initial data
+          loadTabData('route');
+          
+          debugLog('Authentication successful', { username: userInfo.username });
+        } else {
+          debugLog('Tokens expired, clearing storage');
+          localStorage.removeItem('smartParkingTokens');
+          redirectToLogin();
+        }
+      } else {
+        debugLog('No tokens available, redirecting to login');
+        redirectToLogin();
+      }
+    }
+
+    // Redirect to Cognito login with OIDC
+    function redirectToLogin() {
+      userGreeting.innerHTML = 'Not authenticated';
+      authStatus.innerHTML = '❌ Not authenticated - Redirecting to login...';
+      
+      const loginUrl = `https://${COGNITO_CONFIG.domain}/oauth2/authorize?` +
+        `client_id=${COGNITO_CONFIG.clientId}&` +
+        `response_type=token&` +
+        `scope=${COGNITO_CONFIG.scopes.join('+')}&` +
+        `redirect_uri=${encodeURIComponent(COGNITO_CONFIG.redirectUri)}`;
+      
+      debugLog('Redirecting to OIDC login URL', loginUrl);
+      
+      setTimeout(() => {
+        window.location.href = loginUrl;
+      }, 1500);
+    }
+
+    // Logout functionality
+    function logout() {
+      debugLog('Logging out from Smart Parking Route');
+      localStorage.removeItem('smartParkingTokens');
+      
+      const logoutUrl = `https://${COGNITO_CONFIG.domain}/oauth2/logout?` +
+        `client_id=${COGNITO_CONFIG.clientId}&` +
+        `logout_uri=${encodeURIComponent(COGNITO_CONFIG.logoutUri)}`;
+      
+      debugLog('Redirecting to logout URL', logoutUrl);
+      window.location.href = logoutUrl;
+    }
+
+    logoutBtn.addEventListener('click', logout);
+
+    // Placeholder functions for tab data loading
+    function loadParkingData() {
+      debugLog('Loading parking data...');
+      // Implementation for loading parking spots
+    }
+
+    function loadBookingData() {
+      debugLog('Loading booking data...');
+      // Implementation for loading user bookings
+    }
+
+    function loadTripHistory() {
+      debugLog('Loading trip history...');
+      // Implementation for loading trip history
+    }
+
+    function loadUserPreferences() {
+      debugLog('Loading user preferences...');
+      // Implementation for loading user preferences
+    }
+
+    function loadAnalytics() {
+      debugLog('Loading analytics data...');
+      // Implementation for loading analytics
+    }
+
+    function loadNotifications() {
+      debugLog('Loading notifications...');
+      // Implementation for loading notifications
+    }
+
+    // Route Planning functionality
+    const startLocationInput = document.getElementById('startLocationInput');
+    const destinationInput = document.getElementById('destinationInput');
+    const findRouteBtn = document.getElementById('findRouteBtn');
+    const routeStatus = document.getElementById('routeStatus');
+    const routeResults = document.getElementById('routeResults');
+    const routesList = document.getElementById('routesList');
+
+    findRouteBtn.addEventListener('click', async () => {
+      if (!isAuthenticated || !userTokens) {
+        routeStatus.innerText = '❌ Please login first to plan routes.';
+        routeStatus.className = 'error';
+        return;
+      }
+
+      const startLocation = startLocationInput.value.trim();
+      const destination = destinationInput.value.trim();
+
+      if (!startLocation || !destination) {
+        routeStatus.innerText = '❌ Please enter both start location and destination.';
+        routeStatus.className = 'error';
+        return;
+      }
+
+      routeStatus.innerText = '🔍 Finding best routes...';
+      routeStatus.className = 'info';
+      findRouteBtn.disabled = true;
+
+      try {
+        debugLog('Planning route:', { startLocation, destination });
+
+        // This would be replaced with actual API call
+        setTimeout(() => {
+          routeStatus.innerText = '✅ Routes found!';
+          routeStatus.className = 'success';
+          
+          routesList.innerHTML = `
+            <div class="route-item">
+              <h5>🚗 Fastest Route (25 min)</h5>
+              <p>Via Main St → Highway 1 → Downtown</p>
+              <p>Distance: 12.5 km | Parking spots available: 3</p>
+              <button class="select-route-btn">Select This Route</button>
+            </div>
+            <div class="route-item">
+              <h5>🌱 Eco-Friendly Route (32 min)</h5>
+              <p>Via Park Ave → Green St → Downtown</p>
+              <p>Distance: 10.8 km | CO2 saved: 2.1 kg</p>
+              <button class="select-route-btn">Select This Route</button>
+            </div>
+          `;
+          
+          routeResults.style.display = 'block';
+          findRouteBtn.disabled = false;
+        }, 2000);
+
+      } catch (error) {
+        debugLog('Route planning error:', error);
+        routeStatus.innerText = `❌ Route planning failed: ${error.message}`;
+        routeStatus.className = 'error';
+        findRouteBtn.disabled = false;
+      }
+    });
+
+    // Parking Search functionality
+    const parkingLocationInput = document.getElementById('parkingLocationInput');
+    const searchParkingBtn = document.getElementById('searchParkingBtn');
+    const parkingSearchStatus = document.getElementById('parkingSearchStatus');
+    const parkingResultsSection = document.getElementById('parkingResultsSection');
+    const parkingResultsGrid = document.getElementById('parkingResultsGrid');
+
+    searchParkingBtn.addEventListener('click', async () => {
+      if (!isAuthenticated || !userTokens) {
+        parkingSearchStatus.innerText = '❌ Please login first to search parking.';
+        parkingSearchStatus.className = 'error';
+        return;
