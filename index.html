@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Smart Parking Route - Intelligent Parking Solutions</title>
+  <title>Smart Parking Search - Intelligent Parking Solutions</title>
   <style>
     * {
       margin: 0;
@@ -69,84 +69,26 @@
       padding: 0 2rem;
     }
 
-    .auth-section {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      padding: 1.5rem;
-      border-radius: 16px;
-      margin-bottom: 2rem;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    }
-
-    .auth-section.authenticated {
-      background: rgba(76, 175, 80, 0.1);
-      border-left: 4px solid #4caf50;
-    }
-
-    .tab-container {
-      display: flex;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      border-radius: 16px;
-      padding: 0.5rem;
-      margin-bottom: 2rem;
-      overflow-x: auto;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-      gap: 0.5rem;
-    }
-
-    .tab-button {
-      padding: 1rem 1.5rem;
-      cursor: pointer;
-      border-radius: 12px;
-      transition: all 0.3s ease;
-      font-weight: 500;
-      white-space: nowrap;
-      min-width: fit-content;
-    }
-
-    .tab-button:hover {
-      background: rgba(102, 126, 234, 0.1);
-      transform: translateY(-2px);
-    }
-
-    .tab-button.active {
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: white;
-      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-    }
-
-    .tab-content {
-      display: none;
+    .main-content {
       background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(10px);
       border-radius: 16px;
       padding: 2rem;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-      animation: fadeIn 0.3s ease;
     }
 
-    .tab-content.active {
-      display: block;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .route-section, .search-section, .booking-section {
+    .search-section {
       margin-bottom: 2rem;
     }
 
-    .route-input-group, .search-input-group {
+    .search-input-group {
       display: flex;
       gap: 1rem;
       margin-bottom: 1rem;
       flex-wrap: wrap;
     }
 
-    input[type="text"], input[type="datetime-local"], select {
+    input[type="text"], select {
       flex: 1;
       min-width: 200px;
       padding: 1rem;
@@ -194,14 +136,14 @@
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     }
 
-    .route-options, .parking-filters {
+    .parking-filters {
       display: flex;
       gap: 1rem;
       flex-wrap: wrap;
       margin: 1rem 0;
     }
 
-    .route-options label, .parking-filters label {
+    .parking-filters label {
       display: flex;
       align-items: center;
       gap: 0.5rem;
@@ -235,32 +177,6 @@
 
     .results-section {
       margin-top: 2rem;
-    }
-
-    .route-item {
-      background: rgba(102, 126, 234, 0.05);
-      padding: 1.5rem;
-      border-radius: 12px;
-      margin-bottom: 1rem;
-      border: 1px solid rgba(102, 126, 234, 0.1);
-      transition: all 0.3s ease;
-    }
-
-    .route-item:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
-    }
-
-    .route-item h5 {
-      margin-bottom: 0.5rem;
-      color: #667eea;
-    }
-
-    .select-route-btn {
-      background: #4caf50;
-      padding: 0.75rem 1.5rem;
-      font-size: 0.9rem;
-      margin-top: 1rem;
     }
 
     .parking-results-grid {
@@ -305,10 +221,6 @@
       font-weight: 600;
     }
 
-    .availability-high { color: #4caf50; font-weight: bold; }
-    .availability-medium { color: #ff9800; font-weight: bold; }
-    .availability-low { color: #f44336; font-weight: bold; }
-    
     .eco-badge, .ev-badge {
       display: inline-block;
       background: #4caf50;
@@ -329,17 +241,6 @@
       margin-top: 1rem;
     }
 
-    .book-spot-btn {
-      flex: 1;
-      background: #ff9800;
-      font-size: 0.9rem;
-      padding: 0.75rem 1rem;
-    }
-
-    .book-spot-btn:hover {
-      background: #f57c00;
-    }
-
     .navigate-btn {
       flex: 1;
       background: #4caf50;
@@ -355,17 +256,6 @@
       background: #388e3c;
     }
 
-    .debug {
-      background: #f5f5f5;
-      padding: 1rem;
-      border-radius: 8px;
-      font-family: monospace;
-      font-size: 0.8rem;
-      max-height: 200px;
-      overflow-y: auto;
-      margin-top: 1rem;
-    }
-
     @media (max-width: 768px) {
       .header {
         padding: 1rem;
@@ -377,20 +267,12 @@
         padding: 0 1rem;
       }
 
-      .tab-container {
-        flex-direction: column;
-      }
-
-      .route-input-group, .search-input-group {
+      .search-input-group {
         flex-direction: column;
       }
 
       .parking-results-grid {
         grid-template-columns: 1fr;
-      }
-
-      .parking-actions {
-        flex-direction: column;
       }
     }
   </style>
@@ -398,7 +280,7 @@
 <body>
   <!-- Header -->
   <header class="header">
-    <div class="logo">🅿️ Smart Parking Route</div>
+    <div class="logo">🅿️ Smart Parking Search</div>
     <div class="user-section">
       <div id="userGreeting" class="user-greeting">Loading...</div>
       <button id="logoutBtn" class="logout-btn" style="display: none;">Logout</button>
@@ -407,57 +289,8 @@
 
   <!-- Main Container -->
   <div class="main-container">
-    <!-- Authentication Status -->
-    <div id="authSection" class="auth-section">
-      <h3>🔐 Authentication Status</h3>
-      <div id="authStatus">Checking authentication status...</div>
-      <div id="debugInfo" class="debug" style="display: none;"></div>
-    </div>
-
-    <!-- Tab Navigation -->
-    <div class="tab-container">
-      <div id="routeTabBtn" class="tab-button active">🗺️ Route Planning</div>
-      <div id="parkingTabBtn" class="tab-button">🅿️ Parking Search</div>
-    </div>
-
-    <!-- Route Planning Tab -->
-    <div id="routeTabContent" class="tab-content active">
-      <div class="route-section">
-        <h3>🗺️ Plan Your Smart Route</h3>
-        
-        <div class="route-input-group">
-          <input type="text" id="startLocationInput" placeholder="Enter starting location" />
-          <input type="text" id="destinationInput" placeholder="Enter destination" />
-          <button id="findRouteBtn">Find Best Route</button>
-        </div>
-        
-        <div class="route-options">
-          <label>
-            <input type="checkbox" id="includeParking" checked> Include parking spots
-          </label>
-          <label>
-            <input type="checkbox" id="avoidToll"> Avoid toll roads
-          </label>
-          <label>
-            <input type="checkbox" id="ecoFriendly"> Eco-friendly route
-          </label>
-        </div>
-        
-        <div id="routeStatus" class="info">Enter locations to plan your route</div>
-        
-        <!-- Google Map for Route Planning -->
-        <div id="routeMap" class="map-container"></div>
-        
-        <!-- Route Results -->
-        <div id="routeResults" class="results-section" style="display: none;">
-          <h4>Suggested Routes</h4>
-          <div id="routesList" class="routes-list"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Parking Search Tab -->
-    <div id="parkingTabContent" class="tab-content">
+    <!-- Main Content -->
+    <div class="main-content">
       <h3>🅿️ Find Parking Spots</h3>
       
       <!-- Search Section -->
@@ -516,80 +349,44 @@
 
   <script>
     // Google Maps Configuration
-    let routeMap;
     let parkingMap;
-    let directionsService;
-    let directionsRenderer;
     let placesService;
-    let routeAutocompleteStart;
-    let routeAutocompleteDestination;
     let parkingAutocomplete;
     let parkingMarkers = [];
 
     // Melbourne CBD coordinates
     const MELBOURNE_CBD = { lat: -37.8136, lng: 144.9631 };
 
-    // Cognito Configuration
-    const COGNITO_CONFIG = {
-      userPoolId: 'ap-southeast-2_WUGCMLsul',
-      clientId: '142bk2r1bg5rjpfmbstismulh9',
-      region: 'ap-southeast-2',
-      domain: 'cognito-idp.ap-southeast-2.amazonaws.com',
-      redirectUri: 'https://main.d1n04r9iix2vet.amplifyapp.com/',
-      logoutUri: 'https://main.d1n04r9iix2vet.amplifyapp.com/',
-      scopes: ['openid', 'email', 'phone']
-    };
-
     // Global variables
     let userTokens = null;
     let isAuthenticated = false;
-    let currentRoute = null;
+    let melbourneParkingData = [];
 
     // DOM elements
-    const tabs = {
-      route: { btn: document.getElementById('routeTabBtn'), content: document.getElementById('routeTabContent') },
-      parking: { btn: document.getElementById('parkingTabBtn'), content: document.getElementById('parkingTabContent') }
-    };
-
-    const authSection = document.getElementById('authSection');
-    const authStatus = document.getElementById('authStatus');
     const userGreeting = document.getElementById('userGreeting');
     const logoutBtn = document.getElementById('logoutBtn');
-    const debugInfo = document.getElementById('debugInfo');
+    const parkingLocationInput = document.getElementById('parkingLocationInput');
+    const searchParkingBtn = document.getElementById('searchParkingBtn');
+    const parkingSearchStatus = document.getElementById('parkingSearchStatus');
+    const parkingResultsSection = document.getElementById('parkingResultsSection');
+    const parkingResultsGrid = document.getElementById('parkingResultsGrid');
 
     // Debug mode
     const DEBUG_MODE = true;
 
     function debugLog(message, data = null) {
       if (DEBUG_MODE) {
-        console.log(`[Smart Parking Route DEBUG] ${message}`, data);
-        if (debugInfo) {
-          debugInfo.style.display = 'block';
-          debugInfo.innerHTML += `<div>${new Date().toLocaleTimeString()}: ${message}</div>`;
-          if (data) {
-            debugInfo.innerHTML += `<div>Data: ${JSON.stringify(data, null, 2)}</div>`;
-          }
-        }
+        console.log(`[Smart Parking Search DEBUG] ${message}`, data);
       }
     }
 
     // Initialize Google Maps
-    function initMaps() {
+    async function initMaps() {
       debugLog('Initializing Google Maps');
       
-      // Initialize route planning map
-      routeMap = new google.maps.Map(document.getElementById('routeMap'), {
-        zoom: 13,
-        center: MELBOURNE_CBD,
-        styles: [
-          {
-            featureType: 'poi',
-            elementType: 'labels',
-            stylers: [{ visibility: 'off' }]
-          }
-        ]
-      });
-
+      // Load parking data first
+      await loadParkingData();
+      
       // Initialize parking search map
       parkingMap = new google.maps.Map(document.getElementById('parkingMap'), {
         zoom: 15,
@@ -603,43 +400,12 @@
         ]
       });
 
-      // Initialize directions service
-      directionsService = new google.maps.DirectionsService();
-      directionsRenderer = new google.maps.DirectionsRenderer({
-        draggable: true,
-        panel: document.getElementById('routesList')
-      });
-      directionsRenderer.setMap(routeMap);
-
       // Initialize places service
       placesService = new google.maps.places.PlacesService(parkingMap);
 
-      // Setup autocomplete for route inputs
-      routeAutocompleteStart = new google.maps.places.Autocomplete(
-        document.getElementById('startLocationInput'),
-        {
-          bounds: new google.maps.LatLngBounds(
-            new google.maps.LatLng(-37.9, 144.8),
-            new google.maps.LatLng(-37.7, 145.1)
-          ),
-          strictBounds: true
-        }
-      );
-
-      routeAutocompleteDestination = new google.maps.places.Autocomplete(
-        document.getElementById('destinationInput'),
-        {
-          bounds: new google.maps.LatLngBounds(
-            new google.maps.LatLng(-37.9, 144.8),
-            new google.maps.LatLng(-37.7, 145.1)
-          ),
-          strictBounds: true
-        }
-      );
-
       // Setup autocomplete for parking search
       parkingAutocomplete = new google.maps.places.Autocomplete(
-        document.getElementById('parkingLocationInput'),
+        parkingLocationInput,
         {
           bounds: new google.maps.LatLngBounds(
             new google.maps.LatLng(-37.9, 144.8),
@@ -655,95 +421,241 @@
       
       // Initialize authentication after maps are ready
       initAuth();
+      
+      // Load real parking data for Melbourne CBD by default
+      setTimeout(() => {
+        if (melbourneParkingData.length > 0) {
+          loadRealParkingData();
+        } else {
+          // If data isn't loaded yet, try again
+          setTimeout(() => {
+            loadRealParkingData();
+          }, 2000);
+        }
+      }, 1000);
+      
+      // Also set the input to show Melbourne CBD as default
+      parkingLocationInput.value = "Melbourne CBD, VIC, Australia";
+    }
+
+    // Load parking data from CSV
+    async function loadParkingData() {
+      try {
+        debugLog('Loading parking data from CSV...');
+        
+        // Check if window.fs is available
+        if (!window.fs || !window.fs.readFile) {
+          debugLog('window.fs.readFile not available');
+          // Create sample data for demonstration
+          createSampleParkingData();
+          return;
+        }
+
+        const csvContent = await window.fs.readFile('on-street-parking-bays.csv', { encoding: 'utf8' });
+        
+        if (!csvContent) {
+          debugLog('CSV content is empty or undefined');
+          createSampleParkingData();
+          return;
+        }
+
+        debugLog('CSV content loaded, first 200 chars:', csvContent.substring(0, 200));
+        
+        // Simple CSV parser since we know the structure
+        const lines = csvContent.split('\n');
+        if (lines.length < 2) {
+          debugLog('CSV has insufficient lines:', lines.length);
+          createSampleParkingData();
+          return;
+        }
+
+        const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+        debugLog('CSV headers:', headers);
+        
+        melbourneParkingData = [];
+        let validRows = 0;
+        
+        for (let i = 1; i < lines.length; i++) {
+          const line = lines[i].trim();
+          if (!line) continue;
+          
+          // Parse CSV line handling quoted values
+          const values = [];
+          let currentValue = '';
+          let inQuotes = false;
+          
+          for (let j = 0; j < line.length; j++) {
+            const char = line[j];
+            if (char === '"') {
+              inQuotes = !inQuotes;
+            } else if (char === ',' && !inQuotes) {
+              values.push(currentValue.trim().replace(/"/g, ''));
+              currentValue = '';
+            } else {
+              currentValue += char;
+            }
+          }
+          values.push(currentValue.trim().replace(/"/g, ''));
+          
+          // Create parking spot object
+          const spot = {};
+          headers.forEach((header, index) => {
+            let value = values[index] || '';
+            
+            // Convert numeric fields
+            if (header === 'RoadSegmentID' && value) {
+              spot[header] = parseInt(value);
+            } else if (header === 'KerbsideID' && value) {
+              spot[header] = parseInt(value);
+            } else if ((header === 'Latitude' || header === 'Longitude') && value) {
+              spot[header] = parseFloat(value);
+            } else {
+              spot[header] = value;
+            }
+          });
+          
+          // Only add spots with valid coordinates and descriptions
+          if (spot.Latitude && spot.Longitude && spot.RoadSegmentDescription && 
+              !isNaN(spot.Latitude) && !isNaN(spot.Longitude)) {
+            melbourneParkingData.push(spot);
+            validRows++;
+          }
+        }
+        
+        debugLog(`Loaded ${melbourneParkingData.length} valid parking spots from CSV (${validRows} processed)`);
+        
+        if (melbourneParkingData.length === 0) {
+          debugLog('No valid parking data found, creating sample data');
+          createSampleParkingData();
+        }
+        
+      } catch (error) {
+        debugLog('Error loading parking data:', error);
+        createSampleParkingData();
+      }
+    }
+
+    // Create sample parking data as fallback
+    function createSampleParkingData() {
+      debugLog('Creating sample parking data...');
+      
+      melbourneParkingData = [
+        {
+          RoadSegmentID: 20189,
+          KerbsideID: 56721,
+          RoadSegmentDescription: "King Street between Flinders Lane and Collins Street",
+          Latitude: -37.8185369,
+          Longitude: 144.9568504,
+          LastUpdated: "2024-04-08",
+          Location: "-37.8185369, 144.9568504"
+        },
+        {
+          RoadSegmentID: 20172,
+          KerbsideID: null,
+          RoadSegmentDescription: "Queen Street between Collins Street and Little Collins Street",
+          Latitude: -37.8163667,
+          Longitude: 144.9612159,
+          LastUpdated: "2023-11-21",
+          Location: "-37.8163667, 144.9612159"
+        },
+        {
+          RoadSegmentID: 20014,
+          KerbsideID: null,
+          RoadSegmentDescription: "Lonsdale Street between King Street and Spencer Street",
+          Latitude: -37.8148461,
+          Longitude: 144.9536493,
+          LastUpdated: "2023-10-31",
+          Location: "-37.8148461, 144.9536493"
+        },
+        {
+          RoadSegmentID: 22213,
+          KerbsideID: null,
+          RoadSegmentDescription: "Collins Street between Queen Street and Elizabeth Street",
+          Latitude: -37.8136,
+          Longitude: 144.9631,
+          LastUpdated: "2024-01-15",
+          Location: "-37.8136, 144.9631"
+        },
+        {
+          RoadSegmentID: 22214,
+          KerbsideID: 12345,
+          RoadSegmentDescription: "Bourke Street between Swanston Street and Russell Street",
+          Latitude: -37.8141,
+          Longitude: 144.9655,
+          LastUpdated: "2024-02-01",
+          Location: "-37.8141, 144.9655"
+        },
+        {
+          RoadSegmentID: 22215,
+          KerbsideID: null,
+          RoadSegmentDescription: "Flinders Street between Elizabeth Street and Swanston Street",
+          Latitude: -37.8183,
+          Longitude: 144.9671,
+          LastUpdated: "2024-03-10",
+          Location: "-37.8183, 144.9671"
+        },
+        {
+          RoadSegmentID: 22216,
+          KerbsideID: 67890,
+          RoadSegmentDescription: "Spencer Street between Collins Street and Bourke Street",
+          Latitude: -37.8156,
+          Longitude: 144.9506,
+          LastUpdated: "2024-01-20",
+          Location: "-37.8156, 144.9506"
+        },
+        {
+          RoadSegmentID: 22217,
+          KerbsideID: null,
+          RoadSegmentDescription: "Elizabeth Street between Flinders Street and Collins Street",
+          Latitude: -37.8167,
+          Longitude: 144.9612,
+          LastUpdated: "2023-12-15",
+          Location: "-37.8167, 144.9612"
+        },
+        {
+          RoadSegmentID: 22218,
+          KerbsideID: 11111,
+          RoadSegmentDescription: "Russell Street between Collins Street and Bourke Street",
+          Latitude: -37.8149,
+          Longitude: 144.9697,
+          LastUpdated: "2024-02-28",
+          Location: "-37.8149, 144.9697"
+        },
+        {
+          RoadSegmentID: 22219,
+          KerbsideID: null,
+          RoadSegmentDescription: "Little Collins Street between Queen Street and Elizabeth Street",
+          Latitude: -37.8147,
+          Longitude: 144.9615,
+          LastUpdated: "2024-01-05",
+          Location: "-37.8147, 144.9615"
+        }
+      ];
+      
+      debugLog(`Created ${melbourneParkingData.length} sample parking spots`);
     }
 
     // Handle parking location selection
     function onParkingLocationSelected() {
       const place = parkingAutocomplete.getPlace();
-      if (!place.geometry) return;
+      if (!place.geometry) {
+        debugLog('No geometry found for selected place');
+        return;
+      }
 
+      debugLog('Location selected:', place.name);
       parkingMap.setCenter(place.geometry.location);
       parkingMap.setZoom(16);
+      
+      // Clear previous status and show searching
+      parkingSearchStatus.innerText = '🔍 Searching for parking near selected location...';
+      parkingSearchStatus.className = 'info';
       
       // Search for nearby parking automatically
       searchNearbyParking(place.geometry.location);
     }
 
-    // Tab switching logic
-    function switchTab(activeTab) {
-      Object.values(tabs).forEach(tab => {
-        tab.btn.classList.remove('active');
-        tab.content.classList.remove('active');
-      });
-      
-      tabs[activeTab].btn.classList.add('active');
-      tabs[activeTab].content.classList.add('active');
-      
-      // Resize maps when switching tabs
-      setTimeout(() => {
-        if (activeTab === 'route') {
-          google.maps.event.trigger(routeMap, 'resize');
-        } else if (activeTab === 'parking') {
-          google.maps.event.trigger(parkingMap, 'resize');
-        }
-      }, 100);
-    }
-
-    // Add event listeners for tabs
-    tabs.route.btn.addEventListener('click', () => switchTab('route'));
-    tabs.parking.btn.addEventListener('click', () => switchTab('parking'));
-
-    // Authentication functions (same as before)
-    function getTokensFromUrl() {
-      debugLog('Checking URL for OIDC tokens');
-      
-      let params = new URLSearchParams(window.location.hash.substring(1));
-      if (!params.has('access_token')) {
-        params = new URLSearchParams(window.location.search);
-      }
-      
-      const accessToken = params.get('access_token');
-      const idToken = params.get('id_token');
-      const tokenType = params.get('token_type');
-      const expiresIn = params.get('expires_in');
-      
-      if (accessToken && idToken) {
-        return { accessToken, idToken, tokenType: tokenType || 'Bearer', expiresIn: expiresIn ? parseInt(expiresIn) : 3600 };
-      }
-      return null;
-    }
-
-    function decodeJWT(token) {
-      try {
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join(''));
-        return JSON.parse(jsonPayload);
-      } catch (e) {
-        return null;
-      }
-    }
-
-    function extractUserInfo(tokens) {
-      let userInfo = { username: 'Demo User', email: null };
-      
-      try {
-        if (tokens.idToken) {
-          const payload = decodeJWT(tokens.idToken);
-          if (payload) {
-            userInfo.username = payload.name || payload.email || payload['cognito:username'] || 'Demo User';
-            userInfo.email = payload.email;
-          }
-        }
-      } catch (e) {
-        debugLog('Error extracting user info', e);
-      }
-      
-      return userInfo;
-    }
-
+    // Authentication functions
     async function initAuth() {
       debugLog('Initializing authentication');
       
@@ -755,8 +667,6 @@
       
       userGreeting.innerHTML = `Welcome, <strong>${userInfo.username}</strong>`;
       logoutBtn.style.display = 'inline-block';
-      authStatus.innerHTML = `✅ Authenticated as ${userInfo.username}`;
-      authSection.classList.add('authenticated');
       
       debugLog('Demo authentication successful');
     }
@@ -767,124 +677,33 @@
 
     logoutBtn.addEventListener('click', logout);
 
-    // Route Planning functionality
-    const startLocationInput = document.getElementById('startLocationInput');
-    const destinationInput = document.getElementById('destinationInput');
-    const findRouteBtn = document.getElementById('findRouteBtn');
-    const routeStatus = document.getElementById('routeStatus');
-    const routeResults = document.getElementById('routeResults');
-
-    findRouteBtn.addEventListener('click', calculateRoute);
-
-    function calculateRoute() {
-      const start = startLocationInput.value.trim();
-      const destination = destinationInput.value.trim();
-
-      if (!start || !destination) {
-        routeStatus.innerText = '❌ Please enter both start location and destination.';
-        routeStatus.className = 'error';
-        return;
-      }
-
-      routeStatus.innerText = '🔍 Calculating route...';
-      routeStatus.className = 'info';
-      findRouteBtn.disabled = true;
-
-      const request = {
-        origin: start,
-        destination: destination,
-        travelMode: google.maps.TravelMode.DRIVING,
-        avoidTolls: document.getElementById('avoidToll').checked,
-        provideRouteAlternatives: true
-      };
-
-      directionsService.route(request, (result, status) => {
-        if (status === 'OK') {
-          directionsRenderer.setDirections(result);
-          displayRouteResults(result);
-          
-          routeStatus.innerText = '✅ Route calculated successfully!';
-          routeStatus.className = 'success';
-          routeResults.style.display = 'block';
-          
-          // If parking is included, search for parking near destination
-          if (document.getElementById('includeParking').checked) {
-            searchParkingNearDestination(result.routes[0].legs[0].end_location);
-          }
-        } else {
-          routeStatus.innerText = `❌ Route calculation failed: ${status}`;
-          routeStatus.className = 'error';
-        }
-        findRouteBtn.disabled = false;
-      });
-    }
-
-    function displayRouteResults(result) {
-      const routes = result.routes;
-      const routesList = document.getElementById('routesList');
-      
-      let routesHTML = '';
-      routes.forEach((route, index) => {
-        const leg = route.legs[0];
-        routesHTML += `
-          <div class="route-item">
-            <h5>🚗 Route ${index + 1}</h5>
-            <p>Distance: ${leg.distance.text} | Duration: ${leg.duration.text}</p>
-            <p>Via: ${route.summary}</p>
-            <button class="select-route-btn" onclick="selectRoute(${index})">Select This Route</button>
-          </div>
-        `;
-      });
-      
-      routesList.innerHTML = routesHTML;
-    }
-
-    function selectRoute(routeIndex) {
-      currentRoute = routeIndex;
-      debugLog(`Selected route ${routeIndex}`);
-      
-      // Update the directions renderer to show selected route
-      const newDirections = directionsRenderer.getDirections();
-      newDirections.routes = [newDirections.routes[routeIndex]];
-      directionsRenderer.setDirections(newDirections);
-    }
-
-    function searchParkingNearDestination(destination) {
-      debugLog('Searching for parking near destination', destination);
-      
-      const request = {
-        location: destination,
-        radius: 1000,
-        keyword: 'parking'
-      };
-
-      placesService.nearbySearch(request, (results, status) => {
-        if (status === google.maps.places.PlacesServiceStatus.OK) {
-          debugLog(`Found ${results.length} parking locations`);
-          // Add parking markers to route map
-          results.slice(0, 5).forEach(place => {
-            new google.maps.Marker({
-              position: place.geometry.location,
-              map: routeMap,
-              title: place.name,
-              icon: {
-                url: 'https://maps.google.com/mapfiles/ms/icons/parked_car.png',
-                scaledSize: new google.maps.Size(32, 32)
-              }
-            });
-          });
-        }
-      });
-    }
-
-    // Parking Search functionality
-    const parkingLocationInput = document.getElementById('parkingLocationInput');
-    const searchParkingBtn = document.getElementById('searchParkingBtn');
-    const parkingSearchStatus = document.getElementById('parkingSearchStatus');
-    const parkingResultsSection = document.getElementById('parkingResultsSection');
-    const parkingResultsGrid = document.getElementById('parkingResultsGrid');
-
+    // Event listeners
     searchParkingBtn.addEventListener('click', searchParking);
+
+    parkingLocationInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        searchParking();
+      }
+    });
+
+    document.getElementById('maxDistanceSelect').addEventListener('change', function() {
+      const location = parkingLocationInput.value.trim();
+      if (location) {
+        debugLog('Distance filter changed, re-searching...');
+        searchParking();
+      }
+    });
+
+    document.getElementById('parkingTypeSelect').addEventListener('change', function() {
+      if (parkingResultsSection.style.display !== 'none') {
+        debugLog('Parking type filter changed, re-filtering results...');
+        const location = parkingLocationInput.value.trim();
+        if (location) {
+          searchParking();
+        }
+      }
+    });
 
     function searchParking() {
       const location = parkingLocationInput.value.trim();
@@ -916,31 +735,277 @@
       });
     }
 
+    // Find nearby parking spots from CSV data
+    function findNearbyParkingSpots(centerLat, centerLng, radiusKm = 1) {
+      if (!melbourneParkingData || melbourneParkingData.length === 0) {
+        debugLog('No parking data available');
+        return [];
+      }
+
+      const spots = melbourneParkingData.filter(spot => {
+        if (!spot.Latitude || !spot.Longitude) return false;
+        
+        // Calculate distance using Haversine formula for better accuracy
+        const R = 6371; // Earth's radius in kilometers
+        const dLat = (spot.Latitude - centerLat) * Math.PI / 180;
+        const dLon = (spot.Longitude - centerLng) * Math.PI / 180;
+        const a = 
+          Math.sin(dLat/2) * Math.sin(dLat/2) +
+          Math.cos(centerLat * Math.PI / 180) * Math.cos(spot.Latitude * Math.PI / 180) * 
+          Math.sin(dLon/2) * Math.sin(dLon/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        const distance = R * c; // Distance in km
+        
+        return distance <= radiusKm;
+      });
+      
+      // Sort by distance and return top results
+      return spots.map(spot => {
+        const R = 6371;
+        const dLat = (spot.Latitude - centerLat) * Math.PI / 180;
+        const dLon = (spot.Longitude - centerLng) * Math.PI / 180;
+        const a = 
+          Math.sin(dLat/2) * Math.sin(dLat/2) +
+          Math.cos(centerLat * Math.PI / 180) * Math.cos(spot.Latitude * Math.PI / 180) * 
+          Math.sin(dLon/2) * Math.sin(dLon/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        const distance = R * c * 1000; // Distance in meters
+        
+        return {
+          ...spot,
+          distance: Math.round(distance)
+        };
+      }).sort((a, b) => a.distance - b.distance);
+    }
+
     function searchNearbyParking(location) {
+      debugLog('Searching for parking near location:', location.toString());
+      
+      // Clear existing markers and results
+      parkingMarkers.forEach(marker => marker.setMap(null));
+      parkingMarkers = [];
+      parkingResultsSection.style.display = 'none';
+
+      const maxDistance = parseFloat(document.getElementById('maxDistanceSelect').value);
+      
+      // Update status
+      parkingSearchStatus.innerText = '🔍 Finding parking spots nearby...';
+      parkingSearchStatus.className = 'info';
+
+      // Use CSV data to find nearby parking spots
+      const nearbySpots = findNearbyParkingSpots(location.lat(), location.lng(), maxDistance);
+      
+      if (nearbySpots && nearbySpots.length > 0) {
+        // Filter based on parking type if needed
+        const parkingType = document.getElementById('parkingTypeSelect').value;
+        let filteredSpots = nearbySpots;
+        
+        if (parkingType !== 'all') {
+          filteredSpots = nearbySpots.filter(spot => {
+            const desc = spot.RoadSegmentDescription ? spot.RoadSegmentDescription.toLowerCase() : '';
+            switch (parkingType) {
+              case 'street':
+                return desc.includes('street') || desc.includes('road') || desc.includes('avenue');
+              case 'garage':
+                return desc.includes('garage') || desc.includes('building') || desc.includes('car park');
+              case 'lot':
+                return desc.includes('lot') || desc.includes('park') && !desc.includes('national');
+              case 'private':
+                return desc.includes('private') || desc.includes('secure');
+              default:
+                return true;
+            }
+          });
+        }
+        
+        // Limit to top 20 results for better performance
+        const topResults = filteredSpots.slice(0, 20);
+        
+        displayCSVParkingResults(topResults, location);
+        
+        // Also add markers for broader area
+        const markerResults = filteredSpots.slice(0, 100);
+        addAllParkingMarkers(markerResults);
+        
+        parkingSearchStatus.innerText = `✅ Found ${topResults.length} parking spots nearby (${markerResults.length} shown on map)`;
+        parkingSearchStatus.className = 'success';
+        parkingResultsSection.style.display = 'block';
+      } else {
+        parkingSearchStatus.innerText = '❌ No parking spots found in this area. Try increasing the search distance.';
+        parkingSearchStatus.className = 'error';
+      }
+      
+      // Re-enable search button
+      searchParkingBtn.disabled = false;
+    }
+
+    function displayCSVParkingResults(spots, searchLocation) {
+      // Update results count
+      document.getElementById('parkingResultsCount').innerText = 
+        `Found ${spots.length} real parking spots from Melbourne data`;
+
+      // Create parking spot cards
+      let resultsHTML = '';
+      spots.forEach((spot, index) => {
+        // Extract street name for cleaner display
+        const streetName = spot.RoadSegmentDescription ? 
+          spot.RoadSegmentDescription.split(' between')[0] : 'Parking Spot';
+        
+        // Determine if updated recently (within last year)
+        const lastUpdated = new Date(spot.LastUpdated);
+        const isRecent = lastUpdated > new Date('2023-01-01');
+        
+        resultsHTML += `
+          <div class="parking-spot">
+            <h5>🅿️ ${streetName}</h5>
+            <div class="parking-info">
+              <span>Location:</span>
+              <span>${spot.RoadSegmentDescription}</span>
+            </div>
+            <div class="parking-info">
+              <span>Distance:</span>
+              <span>${spot.distance}m away</span>
+            </div>
+            <div class="parking-info">
+              <span>Segment ID:</span>
+              <span>#${spot.RoadSegmentID}</span>
+            </div>
+            <div class="parking-info">
+              <span>Last Updated:</span>
+              <span>${spot.LastUpdated}</span>
+            </div>
+            ${isRecent ? '<div class="eco-badge">✅ Recently Updated</div>' : ''}
+            ${spot.KerbsideID ? '<div class="ev-badge">🏷️ Tracked Spot</div>' : ''}
+            <div class="parking-actions">
+              <button class="navigate-btn" onclick="navigateToParking(${spot.Latitude}, ${spot.Longitude}, '${streetName.replace(/'/g, "\\'")}')">
+                🧭 Navigate
+              </button>
+            </div>
+          </div>
+        `;
+      });
+
+      parkingResultsGrid.innerHTML = resultsHTML;
+
+      // Don't add markers here since we're using addAllParkingMarkers for better coverage
+    }
+
+    // Load real parking data for Melbourne CBD
+    function loadRealParkingData() {
+      debugLog('loadRealParkingData called');
+      parkingSearchStatus.innerText = '🔍 Loading Melbourne CBD parking spots...';
+      parkingSearchStatus.className = 'info';
+      
       // Clear existing markers
       parkingMarkers.forEach(marker => marker.setMap(null));
       parkingMarkers = [];
 
-      const maxDistance = parseFloat(document.getElementById('maxDistanceSelect').value) * 1000;
-      
-      const request = {
-        location: location,
-        radius: maxDistance,
-        keyword: 'parking'
-      };
+      // Check if we have parking data loaded
+      if (!melbourneParkingData || melbourneParkingData.length === 0) {
+        debugLog('No parking data available, showing error and retrying...');
+        parkingSearchStatus.innerText = '❌ Parking data not loaded yet. Please wait...';
+        parkingSearchStatus.className = 'error';
+        // Try to load data again after a delay
+        setTimeout(() => {
+          debugLog('Retrying data load...');
+          loadParkingData().then(() => {
+            if (melbourneParkingData.length > 0) {
+              debugLog('Data loaded on retry, calling loadRealParkingData again');
+              loadRealParkingData();
+            } else {
+              debugLog('Still no data after retry');
+              parkingSearchStatus.innerText = '❌ Unable to load parking data. Using sample data instead.';
+              parkingSearchStatus.className = 'error';
+            }
+          });
+        }, 2000);
+        return;
+      }
 
-      placesService.nearbySearch(request, (results, status) => {
-        if (status === google.maps.places.PlacesServiceStatus.OK) {
-          displayParkingResults(results, location);
-          parkingSearchStatus.innerText = `✅ Found ${results.length} parking locations`;
+      debugLog(`Processing ${melbourneParkingData.length} parking data points`);
+
+      // Use CSV data to find CBD parking spots
+      const cbdSpots = findNearbyParkingSpots(MELBOURNE_CBD.lat, MELBOURNE_CBD.lng, 3); // Increased to 3km radius
+      
+      debugLog(`Found ${cbdSpots.length} CBD parking spots from CSV data`);
+      
+      if (cbdSpots && cbdSpots.length > 0) {
+        // Limit to top 50 spots for initial display
+        const topCBDSpots = cbdSpots.slice(0, 50);
+        
+        displayCSVParkingResults(topCBDSpots, { lat: () => MELBOURNE_CBD.lat, lng: () => MELBOURNE_CBD.lng });
+        parkingSearchStatus.innerText = `✅ Loaded ${topCBDSpots.length} Melbourne CBD parking spots from real data`;
+        parkingSearchStatus.className = 'success';
+        parkingResultsSection.style.display = 'block';
+        
+        // Also add all spots as markers to the map for better visibility
+        addAllParkingMarkers(cbdSpots.slice(0, 200)); // Add more markers to map
+      } else {
+        debugLog('No CBD spots found');
+        parkingSearchStatus.innerText = '❌ No parking spots found in CBD area. Data may be incomplete.';
+        parkingSearchStatus.className = 'error';
+        
+        // Show some sample markers anyway
+        if (melbourneParkingData.length > 0) {
+          const sampleSpots = melbourneParkingData.slice(0, 10).map(spot => ({
+            ...spot,
+            distance: Math.round(Math.random() * 1000)
+          }));
+          displayCSVParkingResults(sampleSpots, { lat: () => MELBOURNE_CBD.lat, lng: () => MELBOURNE_CBD.lng });
+          addAllParkingMarkers(sampleSpots);
+          parkingSearchStatus.innerText = `✅ Showing ${sampleSpots.length} sample parking spots`;
           parkingSearchStatus.className = 'success';
           parkingResultsSection.style.display = 'block';
-        } else {
-          parkingSearchStatus.innerText = '❌ No parking spots found in this area.';
-          parkingSearchStatus.className = 'error';
         }
-        searchParkingBtn.disabled = false;
+      }
+    }
+
+    // Add function to display many markers on map
+    function addAllParkingMarkers(spots) {
+      spots.forEach((spot, index) => {
+        const marker = new google.maps.Marker({
+          position: { lat: spot.Latitude, lng: spot.Longitude },
+          map: parkingMap,
+          title: `${spot.RoadSegmentDescription} (${spot.distance}m away)`,
+          icon: {
+            url: 'data:image/svg+xml;base64,' + btoa(`
+              <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="10" cy="10" r="8" fill="#4285F4" stroke="#ffffff" stroke-width="2"/>
+                <text x="10" y="14" text-anchor="middle" fill="white" font-size="10" font-family="Arial">P</text>
+              </svg>
+            `),
+            scaledSize: new google.maps.Size(20, 20),
+            anchor: new google.maps.Point(10, 10)
+          }
+        });
+
+        // Simple info window
+        const infoWindow = new google.maps.InfoWindow({
+          content: `
+            <div style="padding: 8px; max-width: 200px;">
+              <h5>🅿️ ${spot.RoadSegmentDescription.length > 50 ? spot.RoadSegmentDescription.substring(0, 50) + '...' : spot.RoadSegmentDescription}</h5>
+              <p><strong>Distance:</strong> ${spot.distance}m</p>
+              <p><strong>ID:</strong> ${spot.RoadSegmentID}</p>
+              <p><strong>Updated:</strong> ${spot.LastUpdated}</p>
+            </div>
+          `
+        });
+
+        marker.addListener('click', () => {
+          // Close other info windows
+          parkingMarkers.forEach(m => {
+            if (m.infoWindow) {
+              m.infoWindow.close();
+            }
+          });
+          infoWindow.open(parkingMap, marker);
+        });
+
+        marker.infoWindow = infoWindow;
+        parkingMarkers.push(marker);
       });
+
+      debugLog(`Added ${spots.length} parking markers to map`);
     }
 
     // Navigation function to open Google Maps with directions
@@ -954,341 +1019,21 @@
       window.open(googleMapsUrl, '_blank');
     }
 
-    function displayParkingResults(results, searchLocation) {
-      const priceRange = document.getElementById('priceRangeSelect').value;
-      const parkingType = document.getElementById('parkingTypeSelect').value;
-      
-      // Filter results based on preferences
-      let filteredResults = results.filter(place => {
-        if (parkingType !== 'all') {
-          const name = place.name.toLowerCase();
-          switch (parkingType) {
-            case 'street':
-              return name.includes('street') || name.includes('meter');
-            case 'garage':
-              return name.includes('garage') || name.includes('building');
-            case 'lot':
-              return name.includes('lot') || name.includes('park');
-            case 'private':
-              return name.includes('private') || name.includes('secure');
-          }
-        }
-        return true;
-      });
-
-      // Simulate parking availability and pricing data
-      const parkingData = filteredResults.slice(0, 8).map((place, index) => {
-        const distance = google.maps.geometry.spherical.computeDistanceBetween(
-          searchLocation, place.geometry.location
-        );
-        
-        return {
-          ...place,
-          distance: Math.round(distance),
-          available: Math.floor(Math.random() * 20) + 1,
-          total: Math.floor(Math.random() * 30) + 20,
-          price: (Math.random() * 15 + 2).toFixed(2),
-          rating: (Math.random() * 2 + 3).toFixed(1),
-          isEcoFriendly: Math.random() > 0.7,
-          hasEVCharging: Math.random() > 0.8,
-          lat: place.geometry.location.lat(),
-          lng: place.geometry.location.lng()
-        };
-      });
-
-      // Update results count
-      document.getElementById('parkingResultsCount').innerText = 
-        `Found ${parkingData.length} available parking spots`;
-
-      // Create parking spot cards
-      let resultsHTML = '';
-      parkingData.forEach((spot, index) => {
-        const availability = ((spot.available / spot.total) * 100).toFixed(0);
-        const availabilityClass = availability > 50 ? 'high' : availability > 20 ? 'medium' : 'low';
-        
-        resultsHTML += `
-          <div class="parking-spot">
-            <h5>🅿️ ${spot.name}</h5>
-            <div class="parking-info">
-              <span>Distance:</span>
-              <span>${spot.distance}m</span>
-            </div>
-            <div class="parking-info">
-              <span>Available:</span>
-              <span class="availability-${availabilityClass}">${spot.available}/${spot.total} spots</span>
-            </div>
-            <div class="parking-info">
-              <span>Price:</span>
-              <span>${spot.price}/hour</span>
-            </div>
-            <div class="parking-info">
-              <span>Rating:</span>
-              <span>⭐ ${spot.rating}/5</span>
-            </div>
-            ${spot.isEcoFriendly ? '<div class="eco-badge">🌱 Eco-Friendly</div>' : ''}
-            ${spot.hasEVCharging ? '<div class="ev-badge">⚡ EV Charging</div>' : ''}
-            <div class="parking-actions">
-              <button class="book-spot-btn" onclick="bookParkingSpot('${spot.place_id}', '${spot.name}')">
-                📅 Book Spot
-              </button>
-              <button class="navigate-btn" onclick="navigateToParking(${spot.lat}, ${spot.lng}, '${spot.name}')">
-                🧭 Navigate
-              </button>
-            </div>
-          </div>
-        `;
-      });
-
-      parkingResultsGrid.innerHTML = resultsHTML;
-
-      // Add markers to map
-      parkingData.forEach((spot, index) => {
-        const marker = new google.maps.Marker({
-          position: spot.geometry.location,
-          map: parkingMap,
-          title: `${spot.name} - ${spot.available}/${spot.total} available`,
-          icon: {
-            url: spot.available > 5 ? 
-              'https://maps.google.com/mapfiles/ms/icons/green-dot.png' :
-              spot.available > 0 ? 
-              'https://maps.google.com/mapfiles/ms/icons/yellow-dot.png' :
-              'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
-            scaledSize: new google.maps.Size(32, 32)
-          }
-        });
-
-        // Add info window
-        const infoWindow = new google.maps.InfoWindow({
-          content: `
-            <div style="padding: 10px; max-width: 200px;">
-              <h4>${spot.name}</h4>
-              <p><strong>Available:</strong> ${spot.available}/${spot.total}</p>
-              <p><strong>Price:</strong> ${spot.price}/hour</p>
-              <p><strong>Distance:</strong> ${spot.distance}m</p>
-              ${spot.isEcoFriendly ? '<p>🌱 Eco-Friendly</p>' : ''}
-              ${spot.hasEVCharging ? '<p>⚡ EV Charging Available</p>' : ''}
-              <button style="margin-top: 5px; padding: 5px 10px; background: #4caf50; color: white; border: none; border-radius: 4px; cursor: pointer;" 
-                      onclick="navigateToParking(${spot.lat}, ${spot.lng}, '${spot.name}')">
-                🧭 Navigate Here
-              </button>
-            </div>
-          `
-        });
-
-        marker.addListener('click', () => {
-          infoWindow.open(parkingMap, marker);
-        });
-
-        parkingMarkers.push(marker);
-      });
-    }
-
-    function bookParkingSpot(placeId, name) {
-      if (!isAuthenticated) {
-        alert('Please login to book parking spots.');
-        return;
-      }
-
-      debugLog('Booking parking spot', { placeId, name });
-      
-      // Simulate booking process
-      const confirmBooking = confirm(`Book parking spot at ${name}?`);
-      if (confirmBooking) {
-        // Here you would integrate with your booking API
-        alert(`Booking confirmed for ${name}! Check your bookings in the Booking Management tab.`);
-        
-        // You could also add this to a bookings array and update the UI
-        debugLog('Parking spot booked successfully');
-      }
-    }
-
-    // Melbourne-specific parking data simulation
-    function generateMelbourneParkingData() {
-      const melbourneParkingSpots = [
-        {
-          name: "Melbourne Central Car Park",
-          location: { lat: -37.8101, lng: 144.9634 },
-          type: "garage",
-          price: 8.50,
-          available: 45,
-          total: 200,
-          isEcoFriendly: true,
-          hasEVCharging: true
-        },
-        {
-          name: "Collins Street Parking",
-          location: { lat: -37.8136, lng: 144.9631 },
-          type: "street",
-          price: 6.20,
-          available: 8,
-          total: 25,
-          isEcoFriendly: false,
-          hasEVCharging: false
-        },
-        {
-          name: "Federation Square Car Park",
-          location: { lat: -37.8179, lng: 144.9690 },
-          type: "garage",
-          price: 12.00,
-          available: 23,
-          total: 150,
-          isEcoFriendly: true,
-          hasEVCharging: true
-        },
-        {
-          name: "Bourke Street Mall Parking",
-          location: { lat: -37.8136, lng: 144.9652 },
-          type: "street",
-          price: 5.80,
-          available: 3,
-          total: 15,
-          isEcoFriendly: false,
-          hasEVCharging: false
-        },
-        {
-          name: "Queen Victoria Market Car Park",
-          location: { lat: -37.8076, lng: 144.9568 },
-          type: "lot",
-          price: 4.50,
-          available: 67,
-          total: 300,
-          isEcoFriendly: true,
-          hasEVCharging: false
-        }
-      ];
-
-      return melbourneParkingSpots;
-    }
-
-    // Load Melbourne CBD parking data on parking tab
-    function loadMelbourneParkingData() {
-      const melbourneParkingSpots = generateMelbourneParkingData();
-      
-      // Clear existing markers
-      parkingMarkers.forEach(marker => marker.setMap(null));
-      parkingMarkers = [];
-
-      // Add Melbourne parking spots to map
-      melbourneParkingSpots.forEach(spot => {
-        const marker = new google.maps.Marker({
-          position: spot.location,
-          map: parkingMap,
-          title: `${spot.name} - ${spot.available}/${spot.total} available`,
-          icon: {
-            url: spot.available > 20 ? 
-              'https://maps.google.com/mapfiles/ms/icons/green-dot.png' :
-              spot.available > 5 ? 
-              'https://maps.google.com/mapfiles/ms/icons/yellow-dot.png' :
-              'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
-            scaledSize: new google.maps.Size(32, 32)
-          }
-        });
-
-        const infoWindow = new google.maps.InfoWindow({
-          content: `
-            <div style="padding: 10px; max-width: 200px;">
-              <h4>${spot.name}</h4>
-              <p><strong>Available:</strong> ${spot.available}/${spot.total}</p>
-              <p><strong>Price:</strong> ${spot.price}/hour</p>
-              <p><strong>Type:</strong> ${spot.type}</p>
-              ${spot.isEcoFriendly ? '<p>🌱 Eco-Friendly</p>' : ''}
-              ${spot.hasEVCharging ? '<p>⚡ EV Charging Available</p>' : ''}
-              <button style="margin-top: 5px; padding: 5px 10px; background: #4caf50; color: white; border: none; border-radius: 4px; cursor: pointer;" 
-                      onclick="navigateToParking(${spot.location.lat}, ${spot.location.lng}, '${spot.name}')">
-                🧭 Navigate Here
-              </button>
-            </div>
-          `
-        });
-
-        marker.addListener('click', () => {
-          infoWindow.open(parkingMap, marker);
-        });
-
-        parkingMarkers.push(marker);
-      });
-
-      parkingSearchStatus.innerText = '✅ Showing Melbourne CBD parking spots';
-      parkingSearchStatus.className = 'success';
-      
-      // Display in results grid
-      displayMelbourneParkingResults(melbourneParkingSpots);
-    }
-
-    function displayMelbourneParkingResults(spots) {
-      document.getElementById('parkingResultsCount').innerText = 
-        `Showing ${spots.length} Melbourne CBD parking locations`;
-
-      let resultsHTML = '';
-      spots.forEach(spot => {
-        const availability = ((spot.available / spot.total) * 100).toFixed(0);
-        const availabilityClass = availability > 50 ? 'high' : availability > 20 ? 'medium' : 'low';
-        
-        resultsHTML += `
-          <div class="parking-spot">
-            <h5>🅿️ ${spot.name}</h5>
-            <div class="parking-info">
-              <span>Type:</span>
-              <span>${spot.type.charAt(0).toUpperCase() + spot.type.slice(1)}</span>
-            </div>
-            <div class="parking-info">
-              <span>Available:</span>
-              <span class="availability-${availabilityClass}">${spot.available}/${spot.total} spots</span>
-            </div>
-            <div class="parking-info">
-              <span>Price:</span>
-              <span>${spot.price}/hour</span>
-            </div>
-            ${spot.isEcoFriendly ? '<div class="eco-badge">🌱 Eco-Friendly</div>' : ''}
-            ${spot.hasEVCharging ? '<div class="ev-badge">⚡ EV Charging</div>' : ''}
-            <div class="parking-actions">
-              <button class="book-spot-btn" onclick="bookParkingSpot('${spot.name}', '${spot.name}')">
-                📅 Book Spot
-              </button>
-              <button class="navigate-btn" onclick="navigateToParking(${spot.location.lat}, ${spot.location.lng}, '${spot.name}')">
-                🧭 Navigate
-              </button>
-            </div>
-          </div>
-        `;
-      });
-
-      parkingResultsGrid.innerHTML = resultsHTML;
-      parkingResultsSection.style.display = 'block';
-    }
-
-    // Enhanced tab switching with parking data loading
-    const originalSwitchTab = switchTab;
-    switchTab = function(activeTab) {
-      originalSwitchTab(activeTab);
-      
-      if (activeTab === 'parking') {
-        // Load Melbourne CBD parking data by default
-        setTimeout(() => {
-          loadMelbourneParkingData();
-        }, 500);
-      }
-    };
-
     // Error handling for Google Maps API
     window.gm_authFailure = function() {
       debugLog('Google Maps API authentication failed');
-      document.getElementById('routeMap').innerHTML = 
-        '<div style="display: flex; align-items: center; justify-content: center; height: 100%; background: #f5f5f5; color: #666;"><p>⚠️ Google Maps API key required. Please add your API key to enable maps.</p></div>';
       document.getElementById('parkingMap').innerHTML = 
         '<div style="display: flex; align-items: center; justify-content: center; height: 100%; background: #f5f5f5; color: #666;"><p>⚠️ Google Maps API key required. Please add your API key to enable maps.</p></div>';
     };
 
     // Initialize app when page loads
     document.addEventListener('DOMContentLoaded', function() {
-      debugLog('Smart Parking Route app initialized');
+      debugLog('Smart Parking Search app initialized');
       
       // If Google Maps fails to load, show fallback
       setTimeout(() => {
         if (typeof google === 'undefined') {
           debugLog('Google Maps API not loaded, showing fallback');
-          document.getElementById('routeMap').innerHTML = 
-            '<div style="display: flex; align-items: center; justify-content: center; height: 100%; background: #f5f5f5; color: #666; flex-direction: column;"><p>🗺️ Interactive Map</p><p style="font-size: 0.9rem; margin-top: 0.5rem;">Add your Google Maps API key to enable full functionality</p></div>';
           document.getElementById('parkingMap').innerHTML = 
             '<div style="display: flex; align-items: center; justify-content: center; height: 100%; background: #f5f5f5; color: #666; flex-direction: column;"><p>🗺️ Parking Map</p><p style="font-size: 0.9rem; margin-top: 0.5rem;">Add your Google Maps API key to enable full functionality</p></div>';
           
