@@ -312,9 +312,11 @@
           <label>Max Distance: 
             <select id="maxDistanceSelect">
               <option value="0.5">0.5 km</option>
-              <option value="1" selected>1 km</option>
-              <option value="2">2 km</option>
+              <option value="1">1 km</option>
+              <option value="2" selected>2 km</option>
               <option value="5">5 km</option>
+              <option value="10">10 km</option>
+              <option value="20">20 km (All Melbourne)</option>
             </select>
           </label>
           
@@ -329,7 +331,7 @@
           </label>
         </div>
         
-        <div id="parkingSearchStatus" class="info">Ready to search for parking spots</div>
+        <div id="parkingSearchStatus" class="info">Ready to search for parking spots across all Melbourne areas</div>
         
         <!-- Google Map for Parking Search -->
         <div id="parkingMap" class="map-container"></div>
@@ -354,8 +356,14 @@
     let parkingAutocomplete;
     let parkingMarkers = [];
 
-    // Melbourne CBD coordinates
-    const MELBOURNE_CBD = { lat: -37.8136, lng: 144.9631 };
+    // Melbourne coordinates - broader area to show all suburbs
+    const MELBOURNE_CENTER = { lat: -37.8136, lng: 144.9631 };
+    const MELBOURNE_BOUNDS = {
+      north: -37.4,   // Northern suburbs
+      south: -38.2,   // Southern suburbs  
+      east: 145.5,    // Eastern suburbs
+      west: 144.4     // Western suburbs
+    };
 
     // Global variables
     let userTokens = null;
@@ -387,10 +395,10 @@
       // Load parking data first
       await loadParkingData();
       
-      // Initialize parking search map
+      // Initialize parking search map - zoom out to show all Melbourne
       parkingMap = new google.maps.Map(document.getElementById('parkingMap'), {
-        zoom: 15,
-        center: MELBOURNE_CBD,
+        zoom: 10,  // Zoomed out to show entire Melbourne area
+        center: MELBOURNE_CENTER,
         styles: [
           {
             featureType: 'poi',
@@ -403,15 +411,15 @@
       // Initialize places service
       placesService = new google.maps.places.PlacesService(parkingMap);
 
-      // Setup autocomplete for parking search
+      // Setup autocomplete for parking search - expanded bounds for all Melbourne
       parkingAutocomplete = new google.maps.places.Autocomplete(
         parkingLocationInput,
         {
           bounds: new google.maps.LatLngBounds(
-            new google.maps.LatLng(-37.9, 144.8),
-            new google.maps.LatLng(-37.7, 145.1)
+            new google.maps.LatLng(MELBOURNE_BOUNDS.south, MELBOURNE_BOUNDS.west),
+            new google.maps.LatLng(MELBOURNE_BOUNDS.north, MELBOURNE_BOUNDS.east)
           ),
-          strictBounds: true
+          strictBounds: false  // Allow searches outside bounds but prioritize Melbourne
         }
       );
 
@@ -434,50 +442,121 @@
         }
       }, 1000);
       
-      // Also set the input to show Melbourne CBD as default
-      parkingLocationInput.value = "Melbourne CBD, VIC, Australia";
+      // Also set the input to show Melbourne as default (broader area)
+      parkingLocationInput.value = "Melbourne, VIC, Australia";
     }
 
-    // Load parking data from CSV
+    // Load parking data from S3 or local CSV file
     async function loadParkingData() {
+      debugLog('Starting parking data load process...');
+      
+      // S3 URL for the CSV file - update this with your actual S3 URL
+      const S3_CSV_URL = 'https://smartrouteparking.s3.ap-southeast-2.amazonaws.com/on-street-parking-bays.csv';
+      // You can also use other cloud storage services:
+      // const S3_CSV_URL = 'https://smartrouteparking.s3.ap-southeast-2.amazonaws.com/on-street-parking-bays.csv';
+      
+      // Try S3 first, then local file, then fallback to sample data
+      
+      // Method 1: Try loading from S3
       try {
-        debugLog('Loading parking data from CSV...');
+        debugLog('Attempting to load CSV from S3...');
+        const response = await fetch(S3_CSV_URL);
         
-        // Check if window.fs is available
-        if (!window.fs || !window.fs.readFile) {
-          debugLog('window.fs.readFile not available');
-          // Create sample data for demonstration
-          createSampleParkingData();
-          return;
+        if (response.ok) {
+          const csvContent = await response.text();
+          
+          if (csvContent && csvContent.length > 100) {
+            debugLog(`SUCCESS: CSV loaded from S3! Content length: ${csvContent.length} characters`);
+            await parseCSVContent(csvContent);
+            return;
+          }
+        } else {
+          debugLog(`S3 fetch failed with status: ${response.status} - ${response.statusText}`);
         }
-
-        const csvContent = await window.fs.readFile('on-street-parking-bays.csv', { encoding: 'utf8' });
-        
-        if (!csvContent) {
-          debugLog('CSV content is empty or undefined');
-          createSampleParkingData();
-          return;
+      } catch (error) {
+        debugLog('S3 loading failed:', error.message);
+      }
+      
+      // Method 2: Try loading from local file system (for development)
+      try {
+        if (window.fs && window.fs.readFile) {
+          debugLog('Attempting to read local CSV file...');
+          const csvContent = await window.fs.readFile('on-street-parking-bays.csv', { encoding: 'utf8' });
+          
+          if (csvContent && csvContent.length > 100) {
+            debugLog(`SUCCESS: CSV loaded locally! Content length: ${csvContent.length} characters`);
+            await parseCSVContent(csvContent);
+            return;
+          }
         }
+      } catch (error) {
+        debugLog('Local CSV file loading failed:', error.message);
+      }
+      
+      // Method 3: Fallback to sample data with instructions
+      debugLog('All loading methods failed, using sample data');
+      showS3Instructions();
+    }
 
-        debugLog('CSV content loaded, first 200 chars:', csvContent.substring(0, 200));
-        
-        // Simple CSV parser since we know the structure
-        const lines = csvContent.split('\n');
+    // Parse CSV content into parking data
+    async function parseCSVContent(csvContent) {
+      debugLog('Parsing CSV content...');
+      
+      try {
+        const lines = csvContent.trim().split('\n');
         if (lines.length < 2) {
-          debugLog('CSV has insufficient lines:', lines.length);
-          createSampleParkingData();
+          debugLog('ERROR: CSV has insufficient lines:', lines.length);
+          showS3Instructions();
           return;
         }
 
-        const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
-        debugLog('CSV headers:', headers);
+        // Parse headers
+        const headerLine = lines[0];
+        const headers = [];
+        let current = '';
+        let inQuotes = false;
         
+        for (let i = 0; i < headerLine.length; i++) {
+          const char = headerLine[i];
+          if (char === '"') {
+            inQuotes = !inQuotes;
+          } else if (char === ',' && !inQuotes) {
+            headers.push(current.trim().replace(/"/g, ''));
+            current = '';
+          } else {
+            current += char;
+          }
+        }
+        headers.push(current.trim().replace(/"/g, ''));
+        
+        debugLog('CSV Headers found:', headers);
+
+        // Verify we have the expected columns
+        const requiredColumns = ['Latitude', 'Longitude', 'RoadSegmentDescription'];
+        const missingColumns = requiredColumns.filter(col => !headers.includes(col));
+        if (missingColumns.length > 0) {
+          debugLog('ERROR: Missing required columns:', missingColumns);
+          showS3Instructions();
+          return;
+        }
+
         melbourneParkingData = [];
+        let processedRows = 0;
         let validRows = 0;
+        
+        // Process each data row with progress logging for large datasets
+        const totalLines = lines.length - 1;
         
         for (let i = 1; i < lines.length; i++) {
           const line = lines[i].trim();
           if (!line) continue;
+          
+          processedRows++;
+          
+          // Log progress for large datasets
+          if (processedRows % 5000 === 0) {
+            debugLog(`Processing progress: ${processedRows}/${totalLines} rows (${Math.round(processedRows/totalLines*100)}%)`);
+          }
           
           // Parse CSV line handling quoted values
           const values = [];
@@ -489,24 +568,23 @@
             if (char === '"') {
               inQuotes = !inQuotes;
             } else if (char === ',' && !inQuotes) {
-              values.push(currentValue.trim().replace(/"/g, ''));
+              values.push(currentValue.trim().replace(/^"|"$/g, ''));
               currentValue = '';
             } else {
               currentValue += char;
             }
           }
-          values.push(currentValue.trim().replace(/"/g, ''));
+          values.push(currentValue.trim().replace(/^"|"$/g, ''));
           
           // Create parking spot object
           const spot = {};
           headers.forEach((header, index) => {
             let value = values[index] || '';
             
-            // Convert numeric fields
             if (header === 'RoadSegmentID' && value) {
               spot[header] = parseInt(value);
             } else if (header === 'KerbsideID' && value) {
-              spot[header] = parseInt(value);
+              spot[header] = value ? parseInt(value) : null;
             } else if ((header === 'Latitude' || header === 'Longitude') && value) {
               spot[header] = parseFloat(value);
             } else {
@@ -514,126 +592,108 @@
             }
           });
           
-          // Only add spots with valid coordinates and descriptions
+          // Validate the row has required data
           if (spot.Latitude && spot.Longitude && spot.RoadSegmentDescription && 
-              !isNaN(spot.Latitude) && !isNaN(spot.Longitude)) {
+              !isNaN(spot.Latitude) && !isNaN(spot.Longitude) &&
+              spot.Latitude >= -39 && spot.Latitude <= -37 &&
+              spot.Longitude >= 144 && spot.Longitude <= 146) {
             melbourneParkingData.push(spot);
             validRows++;
           }
         }
         
-        debugLog(`Loaded ${melbourneParkingData.length} valid parking spots from CSV (${validRows} processed)`);
+        debugLog(`SUCCESS: Processed ${processedRows} rows, found ${validRows} valid parking spots from real Melbourne data`);
         
-        if (melbourneParkingData.length === 0) {
-          debugLog('No valid parking data found, creating sample data');
-          createSampleParkingData();
-        }
+        // Sample some locations to verify data coverage
+        const sampleSpots = melbourneParkingData.slice(0, 5);
+        debugLog('Sample parking locations loaded:');
+        sampleSpots.forEach((spot, idx) => {
+          debugLog(`  ${idx + 1}. ${spot.RoadSegmentDescription}`);
+        });
+        
+        // Show success message
+        setTimeout(() => {
+          parkingSearchStatus.innerHTML = `
+            <strong>✅ Real Data Loaded!</strong><br>
+            Successfully loaded ${validRows} parking spots from your CSV data via S3
+          `;
+          parkingSearchStatus.className = 'success';
+        }, 500);
         
       } catch (error) {
-        debugLog('Error loading parking data:', error);
-        createSampleParkingData();
+        debugLog('Error parsing CSV content:', error);
+        showS3Instructions();
       }
     }
 
-    // Create sample parking data as fallback
-    function createSampleParkingData() {
-      debugLog('Creating sample parking data...');
+    // Show instructions for setting up S3 hosting
+    function showS3Instructions() {
+      debugLog('⚠️  CSV file cannot be loaded - showing S3 setup instructions');
       
+      // Create comprehensive sample dataset covering multiple Melbourne areas
       melbourneParkingData = [
-        {
-          RoadSegmentID: 20189,
-          KerbsideID: 56721,
-          RoadSegmentDescription: "King Street between Flinders Lane and Collins Street",
-          Latitude: -37.8185369,
-          Longitude: 144.9568504,
-          LastUpdated: "2024-04-08",
-          Location: "-37.8185369, 144.9568504"
-        },
-        {
-          RoadSegmentID: 20172,
-          KerbsideID: null,
-          RoadSegmentDescription: "Queen Street between Collins Street and Little Collins Street",
-          Latitude: -37.8163667,
-          Longitude: 144.9612159,
-          LastUpdated: "2023-11-21",
-          Location: "-37.8163667, 144.9612159"
-        },
-        {
-          RoadSegmentID: 20014,
-          KerbsideID: null,
-          RoadSegmentDescription: "Lonsdale Street between King Street and Spencer Street",
-          Latitude: -37.8148461,
-          Longitude: 144.9536493,
-          LastUpdated: "2023-10-31",
-          Location: "-37.8148461, 144.9536493"
-        },
-        {
-          RoadSegmentID: 22213,
-          KerbsideID: null,
-          RoadSegmentDescription: "Collins Street between Queen Street and Elizabeth Street",
-          Latitude: -37.8136,
-          Longitude: 144.9631,
-          LastUpdated: "2024-01-15",
-          Location: "-37.8136, 144.9631"
-        },
-        {
-          RoadSegmentID: 22214,
-          KerbsideID: 12345,
-          RoadSegmentDescription: "Bourke Street between Swanston Street and Russell Street",
-          Latitude: -37.8141,
-          Longitude: 144.9655,
-          LastUpdated: "2024-02-01",
-          Location: "-37.8141, 144.9655"
-        },
-        {
-          RoadSegmentID: 22215,
-          KerbsideID: null,
-          RoadSegmentDescription: "Flinders Street between Elizabeth Street and Swanston Street",
-          Latitude: -37.8183,
-          Longitude: 144.9671,
-          LastUpdated: "2024-03-10",
-          Location: "-37.8183, 144.9671"
-        },
-        {
-          RoadSegmentID: 22216,
-          KerbsideID: 67890,
-          RoadSegmentDescription: "Spencer Street between Collins Street and Bourke Street",
-          Latitude: -37.8156,
-          Longitude: 144.9506,
-          LastUpdated: "2024-01-20",
-          Location: "-37.8156, 144.9506"
-        },
-        {
-          RoadSegmentID: 22217,
-          KerbsideID: null,
-          RoadSegmentDescription: "Elizabeth Street between Flinders Street and Collins Street",
-          Latitude: -37.8167,
-          Longitude: 144.9612,
-          LastUpdated: "2023-12-15",
-          Location: "-37.8167, 144.9612"
-        },
-        {
-          RoadSegmentID: 22218,
-          KerbsideID: 11111,
-          RoadSegmentDescription: "Russell Street between Collins Street and Bourke Street",
-          Latitude: -37.8149,
-          Longitude: 144.9697,
-          LastUpdated: "2024-02-28",
-          Location: "-37.8149, 144.9697"
-        },
-        {
-          RoadSegmentID: 22219,
-          KerbsideID: null,
-          RoadSegmentDescription: "Little Collins Street between Queen Street and Elizabeth Street",
-          Latitude: -37.8147,
-          Longitude: 144.9615,
-          LastUpdated: "2024-01-05",
-          Location: "-37.8147, 144.9615"
-        }
+        // CBD Spots
+        { RoadSegmentID: 20189, KerbsideID: 56721, RoadSegmentDescription: "King Street between Flinders Lane and Collins Street", Latitude: -37.8185369, Longitude: 144.9568504, LastUpdated: "2024-04-08" },
+        { RoadSegmentID: 20172, KerbsideID: null, RoadSegmentDescription: "Queen Street between Collins Street and Little Collins Street", Latitude: -37.8163667, Longitude: 144.9612159, LastUpdated: "2023-11-21" },
+        { RoadSegmentID: 20014, KerbsideID: null, RoadSegmentDescription: "Lonsdale Street between King Street and Spencer Street", Latitude: -37.8148461, Longitude: 144.9536493, LastUpdated: "2023-10-31" },
+        { RoadSegmentID: 22213, KerbsideID: null, RoadSegmentDescription: "Collins Street between Queen Street and Elizabeth Street", Latitude: -37.8136, Longitude: 144.9631, LastUpdated: "2024-01-15" },
+        
+        // Richmond spots
+        { RoadSegmentID: 30001, KerbsideID: 12345, RoadSegmentDescription: "Swan Street between Church Street and Punt Road", Latitude: -37.8256, Longitude: 144.9989, LastUpdated: "2024-03-15" },
+        { RoadSegmentID: 30002, KerbsideID: null, RoadSegmentDescription: "Church Street between Swan Street and Bridge Road", Latitude: -37.8289, Longitude: 144.9945, LastUpdated: "2024-02-20" },
+        { RoadSegmentID: 30003, KerbsideID: 67890, RoadSegmentDescription: "Bridge Road between Church Street and Burnley Street", Latitude: -37.8267, Longitude: 144.9934, LastUpdated: "2024-01-10" },
+        
+        // Carlton spots
+        { RoadSegmentID: 40001, KerbsideID: null, RoadSegmentDescription: "Lygon Street between Grattan Street and Elgin Street", Latitude: -37.8015, Longitude: 144.9665, LastUpdated: "2024-03-01" },
+        { RoadSegmentID: 40002, KerbsideID: 11111, RoadSegmentDescription: "Grattan Street between Lygon Street and Swanston Street", Latitude: -37.8019, Longitude: 144.9632, LastUpdated: "2024-02-15" },
+        
+        // Footscray spots
+        { RoadSegmentID: 50001, KerbsideID: null, RoadSegmentDescription: "Nicholson Street between Barkly Street and Irving Street", Latitude: -37.8020, Longitude: 144.9005, LastUpdated: "2024-01-25" },
+        { RoadSegmentID: 50002, KerbsideID: 22222, RoadSegmentDescription: "Barkly Street between Nicholson Street and Hopkins Street", Latitude: -37.7989, Longitude: 144.9012, LastUpdated: "2024-03-10" },
+        
+        // St Kilda spots  
+        { RoadSegmentID: 60001, KerbsideID: null, RoadSegmentDescription: "Acland Street between Barkly Street and Fitzroy Street", Latitude: -37.8672, Longitude: 144.9734, LastUpdated: "2024-02-28" },
+        { RoadSegmentID: 60002, KerbsideID: 33333, RoadSegmentDescription: "Fitzroy Street between Acland Street and Grey Street", Latitude: -37.8645, Longitude: 144.9745, LastUpdated: "2024-03-05" },
+        
+        // South Yarra spots
+        { RoadSegmentID: 70001, KerbsideID: null, RoadSegmentDescription: "Toorak Road between Chapel Street and Commercial Road", Latitude: -37.8373, Longitude: 144.9797, LastUpdated: "2024-01-18" },
+        { RoadSegmentID: 70002, KerbsideID: 44444, RoadSegmentDescription: "Chapel Street between Toorak Road and Commercial Road", Latitude: -37.8395, Longitude: 144.9823, LastUpdated: "2024-02-12" },
+        
+        // Brunswick spots
+        { RoadSegmentID: 80001, KerbsideID: null, RoadSegmentDescription: "Sydney Road between Victoria Street and Albert Street", Latitude: -37.7656, Longitude: 144.9534, LastUpdated: "2024-03-20" },
+        { RoadSegmentID: 80002, KerbsideID: 55555, RoadSegmentDescription: "Victoria Street between Sydney Road and Brunswick Road", Latitude: -37.7689, Longitude: 144.9578, LastUpdated: "2024-02-08" },
+        
+        // Prahran spots
+        { RoadSegmentID: 90001, KerbsideID: null, RoadSegmentDescription: "High Street between Chapel Street and Malvern Road", Latitude: -37.8523, Longitude: 144.9934, LastUpdated: "2024-01-30" },
+        { RoadSegmentID: 90002, KerbsideID: 66666, RoadSegmentDescription: "Commercial Road between Chapel Street and Punt Road", Latitude: -37.8467, Longitude: 144.9912, LastUpdated: "2024-03-12" },
+        
+        // Collingwood spots
+        { RoadSegmentID: 100001, KerbsideID: null, RoadSegmentDescription: "Smith Street between Johnston Street and Gertrude Street", Latitude: -37.8009, Longitude: 144.9889, LastUpdated: "2024-02-25" },
+        { RoadSegmentID: 100002, KerbsideID: 77777, RoadSegmentDescription: "Johnston Street between Smith Street and Hoddle Street", Latitude: -37.7998, Longitude: 144.9923, LastUpdated: "2024-01-22" }
       ];
       
-      debugLog(`Created ${melbourneParkingData.length} sample parking spots`);
+      debugLog(`Created ${melbourneParkingData.length} sample parking spots covering multiple Melbourne areas`);
+      
+      // Show user-friendly instructions for S3 setup
+      setTimeout(() => {
+        parkingSearchStatus.innerHTML = `
+          <strong>⚙️ Setup Required to Load Your CSV Data</strong><br><br>
+          <strong>To use your real 23,864 parking spots:</strong><br>
+          1. Upload your CSV file to AWS S3 bucket<br>
+          2. Make the file publicly readable<br>
+          3. Update the S3_CSV_URL in the code with your bucket URL<br><br>
+          
+          <strong>S3 URL Format:</strong><br>
+          <code>https://smartrouteparking.s3.ap-southeast-2.amazonaws.com/on-street-parking-bays.csv</code><br><br>
+          
+          <small>Currently showing ${melbourneParkingData.length} sample spots across Melbourne suburbs</small><br>
+          <small>Would you like help setting up S3 hosting?</small>
+        `;
+        parkingSearchStatus.className = 'info';
+      }, 1000);
     }
+
+    // Remove the old sample data function since we now have comprehensive sample data in showCSVInstructions
 
     // Handle parking location selection
     function onParkingLocationSelected() {
@@ -890,10 +950,10 @@
       // Don't add markers here since we're using addAllParkingMarkers for better coverage
     }
 
-    // Load real parking data for Melbourne CBD
+    // Load real parking data for Melbourne (ALL areas, not just CBD)
     function loadRealParkingData() {
       debugLog('loadRealParkingData called');
-      parkingSearchStatus.innerText = '🔍 Loading Melbourne CBD parking spots...';
+      parkingSearchStatus.innerText = '🔍 Loading Melbourne parking spots from all areas...';
       parkingSearchStatus.className = 'info';
       
       // Clear existing markers
@@ -922,41 +982,79 @@
         return;
       }
 
-      debugLog(`Processing ${melbourneParkingData.length} parking data points`);
+      debugLog(`Processing ${melbourneParkingData.length} parking data points from entire Melbourne`);
 
-      // Use CSV data to find CBD parking spots
-      const cbdSpots = findNearbyParkingSpots(MELBOURNE_CBD.lat, MELBOURNE_CBD.lng, 3); // Increased to 3km radius
+      // Analyze the geographic distribution of parking data
+      const allSpots = melbourneParkingData.map(spot => {
+        const distance = Math.round(
+          Math.sqrt(
+            Math.pow((spot.Latitude - MELBOURNE_CENTER.lat) * 111000, 2) + 
+            Math.pow((spot.Longitude - MELBOURNE_CENTER.lng) * 111000, 2)
+          )
+        );
+        return { ...spot, distance };
+      });
+
+      // Group spots by distance to see distribution
+      const spotsByDistance = {
+        cbd: allSpots.filter(s => s.distance <= 2000),      // Within 2km of center
+        inner: allSpots.filter(s => s.distance > 2000 && s.distance <= 10000),  // 2-10km
+        outer: allSpots.filter(s => s.distance > 10000)     // Beyond 10km
+      };
+
+      debugLog(`Parking distribution: CBD (${spotsByDistance.cbd.length}), Inner (${spotsByDistance.inner.length}), Outer (${spotsByDistance.outer.length})`);
+
+      // Sample spots from different areas for display
+      const displaySpots = [];
       
-      debugLog(`Found ${cbdSpots.length} CBD parking spots from CSV data`);
+      // Add CBD spots
+      displaySpots.push(...spotsByDistance.cbd.slice(0, 40));
       
-      if (cbdSpots && cbdSpots.length > 0) {
-        // Limit to top 50 spots for initial display
-        const topCBDSpots = cbdSpots.slice(0, 50);
-        
-        displayCSVParkingResults(topCBDSpots, { lat: () => MELBOURNE_CBD.lat, lng: () => MELBOURNE_CBD.lng });
-        parkingSearchStatus.innerText = `✅ Loaded ${topCBDSpots.length} Melbourne CBD parking spots from real data`;
+      // Add inner Melbourne spots  
+      displaySpots.push(...spotsByDistance.inner.slice(0, 40));
+      
+      // Add outer Melbourne spots
+      displaySpots.push(...spotsByDistance.outer.slice(0, 20));
+
+      // Sort by distance for results display
+      const sortedSpots = displaySpots.sort((a, b) => a.distance - b.distance);
+      
+      debugLog(`Selected ${sortedSpots.length} spots for display across different Melbourne areas`);
+      
+      if (sortedSpots && sortedSpots.length > 0) {
+        displayCSVParkingResults(sortedSpots, { lat: () => MELBOURNE_CENTER.lat, lng: () => MELBOURNE_CENTER.lng });
+        parkingSearchStatus.innerText = `✅ Loaded ${allSpots.length} total Melbourne parking spots (${spotsByDistance.cbd.length} CBD, ${spotsByDistance.inner.length} inner, ${spotsByDistance.outer.length} outer suburbs)`;
         parkingSearchStatus.className = 'success';
         parkingResultsSection.style.display = 'block';
         
-        // Also add all spots as markers to the map for better visibility
-        addAllParkingMarkers(cbdSpots.slice(0, 200)); // Add more markers to map
-      } else {
-        debugLog('No CBD spots found');
-        parkingSearchStatus.innerText = '❌ No parking spots found in CBD area. Data may be incomplete.';
-        parkingSearchStatus.className = 'error';
-        
-        // Show some sample markers anyway
-        if (melbourneParkingData.length > 0) {
-          const sampleSpots = melbourneParkingData.slice(0, 10).map(spot => ({
-            ...spot,
-            distance: Math.round(Math.random() * 1000)
-          }));
-          displayCSVParkingResults(sampleSpots, { lat: () => MELBOURNE_CBD.lat, lng: () => MELBOURNE_CBD.lng });
-          addAllParkingMarkers(sampleSpots);
-          parkingSearchStatus.innerText = `✅ Showing ${sampleSpots.length} sample parking spots`;
-          parkingSearchStatus.className = 'success';
-          parkingResultsSection.style.display = 'block';
+        // Add ALL spots as markers, but sample for performance
+        const allMarkerSpots = [];
+        // Sample every 10th spot from CBD
+        for (let i = 0; i < spotsByDistance.cbd.length; i += 10) {
+          allMarkerSpots.push(spotsByDistance.cbd[i]);
         }
+        // Sample every 20th spot from inner
+        for (let i = 0; i < spotsByDistance.inner.length; i += 20) {
+          allMarkerSpots.push(spotsByDistance.inner[i]);
+        }
+        // Sample every 50th spot from outer
+        for (let i = 0; i < spotsByDistance.outer.length; i += 50) {
+          allMarkerSpots.push(spotsByDistance.outer[i]);
+        }
+        
+        addAllParkingMarkers(allMarkerSpots);
+        debugLog(`Added ${allMarkerSpots.length} markers representing spots across all Melbourne areas`);
+        
+        // Log some sample locations to verify spread
+        debugLog('Sample outer suburb locations:');
+        spotsByDistance.outer.slice(0, 5).forEach(spot => {
+          debugLog(`  ${spot.RoadSegmentDescription} - Distance: ${spot.distance}m`);
+        });
+        
+      } else {
+        debugLog('No parking spots found');
+        parkingSearchStatus.innerText = '❌ No parking spots found. Data may be incomplete.';
+        parkingSearchStatus.className = 'error';
       }
     }
 
