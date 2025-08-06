@@ -296,14 +296,63 @@
       font-size: 0.9rem;
     }
 
-    .book-spot-btn {
-      width: 100%;
+    .parking-info span:first-child {
+      font-weight: 500;
+      color: #666;
+    }
+    
+    .parking-info span:last-child {
+      font-weight: 600;
+    }
+
+    .availability-high { color: #4caf50; font-weight: bold; }
+    .availability-medium { color: #ff9800; font-weight: bold; }
+    .availability-low { color: #f44336; font-weight: bold; }
+    
+    .eco-badge, .ev-badge {
+      display: inline-block;
+      background: #4caf50;
+      color: white;
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      margin: 0.25rem 0.25rem 0.25rem 0;
+    }
+    
+    .ev-badge {
+      background: #2196f3;
+    }
+
+    .parking-actions {
+      display: flex;
+      gap: 0.5rem;
       margin-top: 1rem;
+    }
+
+    .book-spot-btn {
+      flex: 1;
       background: #ff9800;
+      font-size: 0.9rem;
+      padding: 0.75rem 1rem;
     }
 
     .book-spot-btn:hover {
       background: #f57c00;
+    }
+
+    .navigate-btn {
+      flex: 1;
+      background: #4caf50;
+      font-size: 0.9rem;
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .navigate-btn:hover {
+      background: #388e3c;
     }
 
     .debug {
@@ -338,6 +387,10 @@
 
       .parking-results-grid {
         grid-template-columns: 1fr;
+      }
+
+      .parking-actions {
+        flex-direction: column;
       }
     }
   </style>
@@ -459,7 +512,7 @@
   </div>
 
   <!-- Google Maps API -->
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB0Ys2BKJHlHiiV2zQZu2dmSG4p41EwpVg&libraries=places&callback=initMaps"></script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDwXzBClakuchQF0zxKk0UBkPhLX--d7tg&libraries=places&callback=initMaps"></script>
 
   <script>
     // Google Maps Configuration
@@ -890,6 +943,17 @@
       });
     }
 
+    // Navigation function to open Google Maps with directions
+    function navigateToParking(lat, lng, name) {
+      debugLog('Opening navigation to parking spot', { lat, lng, name });
+      
+      // Create Google Maps URL for navigation
+      const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&destination_name=${encodeURIComponent(name)}`;
+      
+      // Open in new tab/window
+      window.open(googleMapsUrl, '_blank');
+    }
+
     function displayParkingResults(results, searchLocation) {
       const priceRange = document.getElementById('priceRangeSelect').value;
       const parkingType = document.getElementById('parkingTypeSelect').value;
@@ -926,7 +990,9 @@
           price: (Math.random() * 15 + 2).toFixed(2),
           rating: (Math.random() * 2 + 3).toFixed(1),
           isEcoFriendly: Math.random() > 0.7,
-          hasEVCharging: Math.random() > 0.8
+          hasEVCharging: Math.random() > 0.8,
+          lat: place.geometry.location.lat(),
+          lng: place.geometry.location.lng()
         };
       });
 
@@ -961,9 +1027,14 @@
             </div>
             ${spot.isEcoFriendly ? '<div class="eco-badge">🌱 Eco-Friendly</div>' : ''}
             ${spot.hasEVCharging ? '<div class="ev-badge">⚡ EV Charging</div>' : ''}
-            <button class="book-spot-btn" onclick="bookParkingSpot('${spot.place_id}', '${spot.name}')">
-              Book This Spot
-            </button>
+            <div class="parking-actions">
+              <button class="book-spot-btn" onclick="bookParkingSpot('${spot.place_id}', '${spot.name}')">
+                📅 Book Spot
+              </button>
+              <button class="navigate-btn" onclick="navigateToParking(${spot.lat}, ${spot.lng}, '${spot.name}')">
+                🧭 Navigate
+              </button>
+            </div>
           </div>
         `;
       });
@@ -996,6 +1067,10 @@
               <p><strong>Distance:</strong> ${spot.distance}m</p>
               ${spot.isEcoFriendly ? '<p>🌱 Eco-Friendly</p>' : ''}
               ${spot.hasEVCharging ? '<p>⚡ EV Charging Available</p>' : ''}
+              <button style="margin-top: 5px; padding: 5px 10px; background: #4caf50; color: white; border: none; border-radius: 4px; cursor: pointer;" 
+                      onclick="navigateToParking(${spot.lat}, ${spot.lng}, '${spot.name}')">
+                🧭 Navigate Here
+              </button>
             </div>
           `
         });
@@ -1118,6 +1193,10 @@
               <p><strong>Type:</strong> ${spot.type}</p>
               ${spot.isEcoFriendly ? '<p>🌱 Eco-Friendly</p>' : ''}
               ${spot.hasEVCharging ? '<p>⚡ EV Charging Available</p>' : ''}
+              <button style="margin-top: 5px; padding: 5px 10px; background: #4caf50; color: white; border: none; border-radius: 4px; cursor: pointer;" 
+                      onclick="navigateToParking(${spot.location.lat}, ${spot.location.lng}, '${spot.name}')">
+                🧭 Navigate Here
+              </button>
             </div>
           `
         });
@@ -1162,9 +1241,14 @@
             </div>
             ${spot.isEcoFriendly ? '<div class="eco-badge">🌱 Eco-Friendly</div>' : ''}
             ${spot.hasEVCharging ? '<div class="ev-badge">⚡ EV Charging</div>' : ''}
-            <button class="book-spot-btn" onclick="bookParkingSpot('${spot.name}', '${spot.name}')">
-              Book This Spot
-            </button>
+            <div class="parking-actions">
+              <button class="book-spot-btn" onclick="bookParkingSpot('${spot.name}', '${spot.name}')">
+                📅 Book Spot
+              </button>
+              <button class="navigate-btn" onclick="navigateToParking(${spot.location.lat}, ${spot.location.lng}, '${spot.name}')">
+                🧭 Navigate
+              </button>
+            </div>
           </div>
         `;
       });
@@ -1185,45 +1269,6 @@
         }, 500);
       }
     };
-
-    // Add some additional CSS for availability indicators and badges
-    const additionalStyles = `
-      <style>
-        .availability-high { color: #4caf50; font-weight: bold; }
-        .availability-medium { color: #ff9800; font-weight: bold; }
-        .availability-low { color: #f44336; font-weight: bold; }
-        
-        .eco-badge, .ev-badge {
-          display: inline-block;
-          background: #4caf50;
-          color: white;
-          padding: 0.25rem 0.5rem;
-          border-radius: 6px;
-          font-size: 0.8rem;
-          margin: 0.25rem 0.25rem 0.25rem 0;
-        }
-        
-        .ev-badge {
-          background: #2196f3;
-        }
-        
-        .parking-info {
-          font-size: 0.9rem;
-          margin-bottom: 0.5rem;
-        }
-        
-        .parking-info span:first-child {
-          font-weight: 500;
-          color: #666;
-        }
-        
-        .parking-info span:last-child {
-          font-weight: 600;
-        }
-      </style>
-    `;
-
-    document.head.insertAdjacentHTML('beforeend', additionalStyles);
 
     // Error handling for Google Maps API
     window.gm_authFailure = function() {
