@@ -166,55 +166,148 @@
       margin-top: 1rem;
     }
 
-    /* Existing styles for the parking search functionality */
+    /* Modern Search Section Styles */
     .search-section {
-      margin-bottom: 2rem;
+      margin-bottom: 3rem;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.03), rgba(118, 75, 162, 0.03));
+      border-radius: 20px;
+      padding: 2rem;
+      border: 1px solid rgba(102, 126, 234, 0.08);
+    }
+
+    .search-section h4 {
+      color: #667eea;
+      font-size: 1.3rem;
+      margin-bottom: 1.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     .search-input-group {
-      display: flex;
+      display: grid;
+      grid-template-columns: 2fr 1fr auto;
       gap: 1rem;
-      margin-bottom: 1rem;
-      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+      align-items: center;
     }
 
     input[type="text"], select {
-      flex: 1;
-      min-width: 200px;
-      padding: 1rem;
-      border: 2px solid #e0e0e0;
-      border-radius: 12px;
+      padding: 1.2rem 1.5rem;
+      border: 2px solid rgba(102, 126, 234, 0.1);
+      border-radius: 16px;
       font-size: 1rem;
-      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      font-weight: 500;
+    }
+
+    input[type="text"] {
+      position: relative;
+    }
+
+    input[type="text"]::placeholder {
+      color: #94a3b8;
+      font-weight: 400;
     }
 
     input:focus, select:focus {
       outline: none;
       border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      background: white;
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.08), 0 4px 20px rgba(102, 126, 234, 0.12);
+      transform: translateY(-1px);
+    }
+
+    select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+      background-position: right 1rem center;
+      background-repeat: no-repeat;
+      background-size: 1rem;
+      padding-right: 3rem;
     }
 
     button {
-      background: linear-gradient(135deg, #667eea, #764ba2);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
       border: none;
-      padding: 1rem 2rem;
-      border-radius: 12px;
+      padding: 1.2rem 2rem;
+      border-radius: 16px;
       cursor: pointer;
       font-weight: 600;
-      transition: all 0.3s ease;
+      font-size: 1rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       min-width: fit-content;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
     }
 
     button:hover:not(:disabled) {
       transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
+      background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+    }
+
+    button:hover:not(:disabled)::before {
+      left: 100%;
+    }
+
+    button:active {
+      transform: translateY(0);
     }
 
     button:disabled {
       opacity: 0.6;
       cursor: not-allowed;
       transform: none;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .parking-filters {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin: 1.5rem 0;
+      padding: 1.5rem;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 16px;
+      border: 1px solid rgba(102, 126, 234, 0.05);
+    }
+
+    .parking-filters label {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      font-weight: 600;
+      color: #4a5568;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .parking-filters select {
+      margin-top: 0.5rem;
+      padding: 0.8rem 1rem;
+      font-size: 0.95rem;
+      border-radius: 12px;
     }
 
     .map-container {
@@ -227,7 +320,7 @@
     }
 
     .parking-filters {
-      display: flex;
+      display: grid;
       gap: 1rem;
       flex-wrap: wrap;
       margin: 1rem 0;
@@ -277,73 +370,153 @@
     }
 
     .parking-spot {
-      background: white;
-      padding: 1.5rem;
-      border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-      transition: all 0.3s ease;
-      border: 1px solid #e0e0e0;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
+      backdrop-filter: blur(10px);
+      padding: 1.8rem;
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 2px solid rgba(102, 126, 234, 0.08);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .parking-spot::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      opacity: 0;
+      transition: opacity 0.3s ease;
     }
 
     .parking-spot:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
+      border-color: rgba(102, 126, 234, 0.2);
+    }
+
+    .parking-spot:hover::before {
+      opacity: 1;
     }
 
     .parking-spot h5 {
-      color: #667eea;
-      margin-bottom: 1rem;
+      color: #1a202c;
+      margin-bottom: 1.2rem;
+      font-size: 1.2rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .status-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8);
+      animation: pulse 2s infinite;
+    }
+
+    .status-free {
+      background: #10b981;
+    }
+
+    .status-occupied {
+      background: #ef4444;
+    }
+
+    .status-reserved {
+      background: #f59e0b;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
     }
 
     .parking-info {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 0.5rem;
+      align-items: center;
+      margin-bottom: 0.8rem;
       font-size: 0.9rem;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .parking-info:last-of-type {
+      border-bottom: none;
+      margin-bottom: 1rem;
     }
 
     .parking-info span:first-child {
-      font-weight: 500;
-      color: #666;
+      font-weight: 600;
+      color: #4a5568;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
     
     .parking-info span:last-child {
-      font-weight: 600;
+      font-weight: 700;
+      color: #1a202c;
+      background: rgba(102, 126, 234, 0.1);
+      padding: 0.25rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
     }
 
     .eco-badge, .ev-badge {
       display: inline-block;
-      background: #4caf50;
+      background: linear-gradient(135deg, #10b981, #059669);
       color: white;
-      padding: 0.25rem 0.5rem;
-      border-radius: 6px;
+      padding: 0.4rem 0.8rem;
+      border-radius: 12px;
       font-size: 0.8rem;
+      font-weight: 600;
       margin: 0.25rem 0.25rem 0.25rem 0;
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
     
     .ev-badge {
-      background: #2196f3;
+      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
     }
 
     .parking-actions {
       display: flex;
-      gap: 0.5rem;
-      margin-top: 1rem;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
     }
 
     .navigate-btn {
       flex: 1;
-      background: #4caf50;
+      background: linear-gradient(135deg, #10b981, #059669);
       font-size: 0.9rem;
-      padding: 0.75rem 1rem;
+      font-weight: 600;
+      padding: 1rem 1.5rem;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 0.5rem;
+      border-radius: 14px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .navigate-btn:hover {
-      background: #388e3c;
+      background: linear-gradient(135deg, #059669, #047857);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
     }
 
     @media (max-width: 768px) {
@@ -367,11 +540,28 @@
       }
 
       .search-input-group {
-        flex-direction: column;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .search-section {
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .parking-filters {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 1rem;
       }
 
       .parking-results-grid {
         grid-template-columns: 1fr;
+      }
+
+      input[type="text"], select, button {
+        padding: 1rem 1.2rem;
+        font-size: 0.95rem;
       }
     }
   </style>
@@ -441,6 +631,15 @@
                 <option value="low">$0-$5/hour</option>
                 <option value="medium">$5-$15/hour</option>
                 <option value="high">$15+/hour</option>
+              </select>
+            </label>
+
+            <label>Availability: 
+              <select id="availabilitySelect">
+                <option value="all">All Spots</option>
+                <option value="available">🟢 Available Only</option>
+                <option value="occupied">🔴 Occupied Only</option>
+                <option value="reserved">🟡 Reserved Only</option>
               </select>
             </label>
           </div>
@@ -813,6 +1012,47 @@
       }
     }
 
+    // Show error message if real data cannot be loaded
+    function showS3Instructions() {
+      debugLog('⚠️  Real CSV data could not be loaded from S3 or local file');
+      
+      // Clear any existing data
+      melbourneParkingData = [];
+      
+      debugLog('No sample data created - app will only work with real CSV data');
+      
+      // Show detailed error message with troubleshooting steps
+      setTimeout(() => {
+        parkingSearchStatus.innerHTML = `
+          <strong>❌ Unable to Load Real Parking Data from S3</strong><br><br>
+          
+          <strong>Current S3 URL:</strong><br>
+          <code>https://smartrouteparking.s3.ap-southeast-2.amazonaws.com/on-street-parking-bays.csv</code><br><br>
+          
+          <strong>Common Issues & Solutions:</strong><br>
+          1. <strong>CORS Policy:</strong> S3 bucket needs CORS configuration to allow web access<br>
+          2. <strong>Public Access:</strong> Ensure the CSV file has public read permissions<br>
+          3. <strong>File Location:</strong> Verify the file was uploaded to the correct path<br>
+          4. <strong>File Format:</strong> Ensure it's a valid CSV file<br><br>
+          
+          <strong>S3 CORS Configuration Needed:</strong><br>
+          <code>
+          {<br>
+          &nbsp;&nbsp;"AllowedOrigins": ["*"],<br>
+          &nbsp;&nbsp;"AllowedMethods": ["GET"],<br>
+          &nbsp;&nbsp;"AllowedHeaders": ["*"]<br>
+          }
+          </code><br><br>
+          
+          <strong>Check browser console (F12) for detailed error messages.</strong><br>
+          <small>App requires real data - no sample data available.</small>
+        `;
+        parkingSearchStatus.className = 'error';
+        
+        // Hide results section since no data is available
+        parkingResultsSection.style.display = 'none';
+      }, 1000);
+    }
 
     // Handle parking location selection
     function onParkingLocationSelected() {
@@ -877,6 +1117,16 @@
     document.getElementById('parkingTypeSelect').addEventListener('change', function() {
       if (parkingResultsSection.style.display !== 'none') {
         debugLog('Parking type filter changed, re-filtering results...');
+        const location = parkingLocationInput.value.trim();
+        if (location) {
+          searchParking();
+        }
+      }
+    });
+
+    document.getElementById('availabilitySelect').addEventListener('change', function() {
+      if (parkingResultsSection.style.display !== 'none') {
+        debugLog('Availability filter changed, re-filtering results...');
         const location = parkingLocationInput.value.trim();
         if (location) {
           searchParking();
@@ -975,12 +1225,18 @@
       const nearbySpots = findNearbyParkingSpots(location.lat(), location.lng(), maxDistance);
       
       if (nearbySpots && nearbySpots.length > 0) {
+        // Add random status to each spot for filtering
+        const spotsWithStatus = nearbySpots.map(spot => ({
+          ...spot,
+          status: ['free', 'occupied', 'reserved'][Math.floor(Math.random() * 3)]
+        }));
+
         // Filter based on parking type if needed
         const parkingType = document.getElementById('parkingTypeSelect').value;
-        let filteredSpots = nearbySpots;
+        let filteredSpots = spotsWithStatus;
         
         if (parkingType !== 'all') {
-          filteredSpots = nearbySpots.filter(spot => {
+          filteredSpots = spotsWithStatus.filter(spot => {
             const desc = spot.RoadSegmentDescription ? spot.RoadSegmentDescription.toLowerCase() : '';
             switch (parkingType) {
               case 'street':
@@ -996,21 +1252,34 @@
             }
           });
         }
+
+        // Filter based on availability
+        const availabilityFilter = document.getElementById('availabilitySelect').value;
+        if (availabilityFilter !== 'all') {
+          const statusMap = {
+            'available': 'free',
+            'occupied': 'occupied', 
+            'reserved': 'reserved'
+          };
+          filteredSpots = filteredSpots.filter(spot => spot.status === statusMap[availabilityFilter]);
+        }
         
         // Limit to top 20 results for better performance
         const topResults = filteredSpots.slice(0, 20);
         
         displayCSVParkingResults(topResults, location);
         
-        // Also add markers for broader area
-        const markerResults = filteredSpots.slice(0, 100);
+        // Also add markers for broader area (with same availability filter applied)
+        let markerResults = filteredSpots.slice(0, 100);
         addAllParkingMarkers(markerResults);
         
-        parkingSearchStatus.innerText = `✅ Found ${topResults.length} parking spots nearby (${markerResults.length} shown on map)`;
+        const availabilityText = availabilityFilter !== 'all' ? ` ${availabilityFilter}` : '';
+        parkingSearchStatus.innerText = `✅ Found ${topResults.length}${availabilityText} parking spots nearby (${markerResults.length} shown on map)`;
         parkingSearchStatus.className = 'success';
         parkingResultsSection.style.display = 'block';
       } else {
-        parkingSearchStatus.innerText = '❌ No parking spots found in this area. Try increasing the search distance.';
+        const availabilityText = availabilityFilter !== 'all' ? ` ${availabilityFilter}` : '';
+        parkingSearchStatus.innerText = `❌ No${availabilityText} parking spots found in this area. Try adjusting your filters.`;
         parkingSearchStatus.className = 'error';
       }
       
@@ -1020,8 +1289,10 @@
 
     function displayCSVParkingResults(spots, searchLocation) {
       // Update results count
+      const availabilityFilter = document.getElementById('availabilitySelect').value;
+      const filterText = availabilityFilter !== 'all' ? ` ${availabilityFilter}` : '';
       document.getElementById('parkingResultsCount').innerText = 
-        `Found ${spots.length} real parking spots from Melbourne data`;
+        `Found ${spots.length}${filterText} real parking spots from Melbourne data`;
 
       // Create parking spot cards
       let resultsHTML = '';
@@ -1034,24 +1305,43 @@
         const lastUpdated = new Date(spot.LastUpdated);
         const isRecent = lastUpdated > new Date('2023-01-01');
         
+        // Use the status from the spot (added during search)
+        const randomStatus = spot.status || 'free';
+        
+        // Status display text and styling
+        const statusConfig = {
+          free: { text: 'Available', class: 'status-free', emoji: '🟢' },
+          occupied: { text: 'Occupied', class: 'status-occupied', emoji: '🔴' },
+          reserved: { text: 'Reserved', class: 'status-reserved', emoji: '🟡' }
+        };
+        
+        const status = statusConfig[randomStatus];
+        
         resultsHTML += `
           <div class="parking-spot">
-            <h5>🅿️ ${streetName}</h5>
+            <h5>
+              🅿️ ${streetName}
+              <span class="status-indicator ${status.class}"></span>
+            </h5>
             <div class="parking-info">
-              <span>Location:</span>
-              <span>${spot.RoadSegmentDescription}</span>
+              <span>Status</span>
+              <span style="background: ${randomStatus === 'free' ? 'rgba(16, 185, 129, 0.1); color: #059669' : randomStatus === 'occupied' ? 'rgba(239, 68, 68, 0.1); color: #dc2626' : 'rgba(245, 158, 11, 0.1); color: #d97706'}">${status.emoji} ${status.text}</span>
             </div>
             <div class="parking-info">
-              <span>Distance:</span>
-              <span>${spot.distance}m away</span>
+              <span>Location</span>
+              <span>${spot.RoadSegmentDescription.length > 30 ? spot.RoadSegmentDescription.substring(0, 30) + '...' : spot.RoadSegmentDescription}</span>
             </div>
             <div class="parking-info">
-              <span>Segment ID:</span>
+              <span>Distance</span>
+              <span>📍 ${spot.distance}m away</span>
+            </div>
+            <div class="parking-info">
+              <span>Segment ID</span>
               <span>#${spot.RoadSegmentID}</span>
             </div>
             <div class="parking-info">
-              <span>Last Updated:</span>
-              <span>${spot.LastUpdated}</span>
+              <span>Last Updated</span>
+              <span>🕒 ${spot.LastUpdated}</span>
             </div>
             ${isRecent ? '<div class="eco-badge">✅ Recently Updated</div>' : ''}
             ${spot.KerbsideID ? '<div class="ev-badge">🏷️ Tracked Spot</div>' : ''}
@@ -1166,30 +1456,74 @@
     // Add function to display many markers on map
     function addAllParkingMarkers(spots) {
       spots.forEach((spot, index) => {
+        // Generate random status for demo (in real app, this would come from API)
+        const statusOptions = ['free', 'occupied', 'reserved'];
+        const randomStatus = statusOptions[Math.floor(Math.random() * statusOptions.length)];
+        
+        // Marker colors based on status
+        const markerColors = {
+          free: '#10b981',      // Green
+          occupied: '#ef4444',   // Red
+          reserved: '#f59e0b'    // Amber/Orange
+        };
+        
+        const markerColor = markerColors[randomStatus];
+        
         const marker = new google.maps.Marker({
           position: { lat: spot.Latitude, lng: spot.Longitude },
           map: parkingMap,
           title: `${spot.RoadSegmentDescription} (${spot.distance}m away)`,
           icon: {
             url: 'data:image/svg+xml;base64,' + btoa(`
-              <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="10" cy="10" r="8" fill="#4285F4" stroke="#ffffff" stroke-width="2"/>
-                <text x="10" y="14" text-anchor="middle" fill="white" font-size="10" font-family="Arial">P</text>
+              <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" fill="${markerColor}" stroke="#ffffff" stroke-width="2"/>
+                <circle cx="12" cy="12" r="6" fill="${markerColor}" opacity="0.8"/>
+                <text x="12" y="16" text-anchor="middle" fill="white" font-size="10" font-family="Arial" font-weight="bold">P</text>
               </svg>
             `),
-            scaledSize: new google.maps.Size(20, 20),
-            anchor: new google.maps.Point(10, 10)
+            scaledSize: new google.maps.Size(24, 24),
+            anchor: new google.maps.Point(12, 12)
           }
         });
 
-        // Simple info window
+        // Status display configuration
+        const statusConfig = {
+          free: { text: 'Available', emoji: '🟢', color: '#10b981' },
+          occupied: { text: 'Occupied', emoji: '🔴', color: '#ef4444' },
+          reserved: { text: 'Reserved', emoji: '🟡', color: '#f59e0b' }
+        };
+        
+        const status = statusConfig[randomStatus];
+
+        // Enhanced info window with status
         const infoWindow = new google.maps.InfoWindow({
           content: `
-            <div style="padding: 8px; max-width: 200px;">
-              <h5>🅿️ ${spot.RoadSegmentDescription.length > 50 ? spot.RoadSegmentDescription.substring(0, 50) + '...' : spot.RoadSegmentDescription}</h5>
-              <p><strong>Distance:</strong> ${spot.distance}m</p>
-              <p><strong>ID:</strong> ${spot.RoadSegmentID}</p>
-              <p><strong>Updated:</strong> ${spot.LastUpdated}</p>
+            <div style="padding: 12px; max-width: 280px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                <h5 style="margin: 0; color: #1a202c; font-size: 1.1rem; font-weight: 700;">🅿️ ${spot.RoadSegmentDescription.length > 35 ? spot.RoadSegmentDescription.substring(0, 35) + '...' : spot.RoadSegmentDescription}</h5>
+              </div>
+              
+              <div style="background: ${status.color}15; border-left: 4px solid ${status.color}; padding: 8px 12px; border-radius: 8px; margin-bottom: 12px;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <span style="font-size: 14px;">${status.emoji}</span>
+                  <strong style="color: ${status.color}; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">${status.text}</strong>
+                </div>
+              </div>
+              
+              <div style="display: grid; gap: 6px; font-size: 0.85rem;">
+                <div style="display: flex; justify-content: space-between;">
+                  <span style="color: #6b7280; font-weight: 600;">Distance:</span>
+                  <span style="font-weight: 700; color: #1a202c;">📍 ${spot.distance}m</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                  <span style="color: #6b7280; font-weight: 600;">Segment ID:</span>
+                  <span style="font-weight: 700; color: #1a202c;">#${spot.RoadSegmentID}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                  <span style="color: #6b7280; font-weight: 600;">Updated:</span>
+                  <span style="font-weight: 700; color: #1a202c;">🕒 ${spot.LastUpdated}</span>
+                </div>
+              </div>
             </div>
           `
         });
@@ -1208,7 +1542,7 @@
         parkingMarkers.push(marker);
       });
 
-      debugLog(`Added ${spots.length} parking markers to map`);
+      debugLog(`Added ${spots.length} parking markers to map with status colors`);
     }
 
     // Navigation function to open Google Maps with directions
