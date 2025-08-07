@@ -1269,8 +1269,8 @@
         
         displayCSVParkingResults(topResults, location);
         
-        // Also add markers for broader area (with same availability filter applied)
-        let markerResults = filteredSpots.slice(0, 100);
+        // Add markers ONLY for the filtered results (same availability filter applied)
+        const markerResults = filteredSpots.slice(0, 100);
         addAllParkingMarkers(markerResults);
         
         const availabilityText = availabilityFilter !== 'all' ? ` ${availabilityFilter}` : '';
@@ -1278,6 +1278,7 @@
         parkingSearchStatus.className = 'success';
         parkingResultsSection.style.display = 'block';
       } else {
+        const availabilityFilter = document.getElementById('availabilitySelect').value;
         const availabilityText = availabilityFilter !== 'all' ? ` ${availabilityFilter}` : '';
         parkingSearchStatus.innerText = `❌ No${availabilityText} parking spots found in this area. Try adjusting your filters.`;
         parkingSearchStatus.className = 'error';
@@ -1378,7 +1379,10 @@
 
       debugLog(`Processing ${melbourneParkingData.length} real parking data points from entire Melbourne`);
 
-      // Analyze the geographic distribution of real parking data
+      // Get current distance filter
+      const maxDistance = parseFloat(document.getElementById('maxDistanceSelect').value);
+
+      // Analyze the geographic distribution of real parking data within distance
       const allSpots = melbourneParkingData.map(spot => {
         const distance = Math.round(
           Math.sqrt(
@@ -1387,16 +1391,34 @@
           )
         );
         return { ...spot, distance };
-      });
+      }).filter(spot => spot.distance <= maxDistance * 1000); // Filter by distance in meters
+
+      // Add random status to spots
+      const spotsWithStatus = allSpots.map(spot => ({
+        ...spot,
+        status: ['free', 'occupied', 'reserved'][Math.floor(Math.random() * 3)]
+      }));
+
+      // Apply availability filter
+      const availabilityFilter = document.getElementById('availabilitySelect').value;
+      let filteredSpots = spotsWithStatus;
+      if (availabilityFilter !== 'all') {
+        const statusMap = {
+          'available': 'free',
+          'occupied': 'occupied', 
+          'reserved': 'reserved'
+        };
+        filteredSpots = spotsWithStatus.filter(spot => spot.status === statusMap[availabilityFilter]);
+      }
 
       // Group spots by distance to see real distribution
       const spotsByDistance = {
-        cbd: allSpots.filter(s => s.distance <= 2000),      // Within 2km of center
-        inner: allSpots.filter(s => s.distance > 2000 && s.distance <= 10000),  // 2-10km
-        outer: allSpots.filter(s => s.distance > 10000)     // Beyond 10km
+        cbd: filteredSpots.filter(s => s.distance <= 2000),      // Within 2km of center
+        inner: filteredSpots.filter(s => s.distance > 2000 && s.distance <= 10000),  // 2-10km
+        outer: filteredSpots.filter(s => s.distance > 10000)     // Beyond 10km
       };
 
-      debugLog(`Real parking distribution: CBD (${spotsByDistance.cbd.length}), Inner (${spotsByDistance.inner.length}), Outer (${spotsByDistance.outer.length})`);
+      debugLog(`Filtered parking distribution (${maxDistance}km): CBD (${spotsByDistance.cbd.length}), Inner (${spotsByDistance.inner.length}), Outer (${spotsByDistance.outer.length})`);
 
       // Sample spots from different areas for display (but all from real data)
       const displaySpots = [];
@@ -1413,15 +1435,17 @@
       // Sort by distance for results display
       const sortedSpots = displaySpots.sort((a, b) => a.distance - b.distance);
       
-      debugLog(`Selected ${sortedSpots.length} real parking spots for display across different Melbourne areas`);
+      debugLog(`Selected ${sortedSpots.length} real parking spots for display within ${maxDistance}km`);
       
       if (sortedSpots && sortedSpots.length > 0) {
         displayCSVParkingResults(sortedSpots, { lat: () => MELBOURNE_CENTER.lat, lng: () => MELBOURNE_CENTER.lng });
-        parkingSearchStatus.innerText = `✅ Loaded ${allSpots.length} REAL Melbourne parking spots (${spotsByDistance.cbd.length} CBD, ${spotsByDistance.inner.length} inner, ${spotsByDistance.outer.length} outer suburbs)`;
+        
+        const availabilityText = availabilityFilter !== 'all' ? ` ${availabilityFilter}` : '';
+        parkingSearchStatus.innerText = `✅ Loaded ${filteredSpots.length}${availabilityText} REAL Melbourne parking spots within ${maxDistance}km (${spotsByDistance.cbd.length} CBD, ${spotsByDistance.inner.length} inner, ${spotsByDistance.outer.length} outer suburbs)`;
         parkingSearchStatus.className = 'success';
         parkingResultsSection.style.display = 'block';
         
-        // Add real parking spots as markers, sampled for performance
+        // Add real parking spots as markers, sampled for performance and filtered by distance
         const allMarkerSpots = [];
         // Sample every 10th spot from CBD
         for (let i = 0; i < spotsByDistance.cbd.length; i += 10) {
@@ -1437,17 +1461,21 @@
         }
         
         addAllParkingMarkers(allMarkerSpots);
-        debugLog(`Added ${allMarkerSpots.length} markers from real data across all Melbourne areas`);
+        debugLog(`Added ${allMarkerSpots.length} markers from real data within ${maxDistance}km range`);
         
-        // Log some sample real locations to verify coverage
-        debugLog('Sample REAL outer suburb locations:');
-        spotsByDistance.outer.slice(0, 5).forEach(spot => {
-          debugLog(`  ${spot.RoadSegmentDescription} - Distance: ${spot.distance}m`);
-        });
+        // Adjust map zoom based on distance filter
+        let zoomLevel = 10;
+        if (maxDistance <= 1) zoomLevel = 15;
+        else if (maxDistance <= 2) zoomLevel = 14;
+        else if (maxDistance <= 5) zoomLevel = 12;
+        else if (maxDistance <= 10) zoomLevel = 11;
+        
+        parkingMap.setZoom(zoomLevel);
         
       } else {
-        debugLog('No real parking spots available for display');
-        parkingSearchStatus.innerText = '❌ No real parking data available for display.';
+        debugLog('No real parking spots available for display within distance');
+        const availabilityText = availabilityFilter !== 'all' ? ` ${availabilityFilter}` : '';
+        parkingSearchStatus.innerText = `❌ No${availabilityText} real parking data available within ${maxDistance}km.`;
         parkingSearchStatus.className = 'error';
         parkingResultsSection.style.display = 'none';
       }
@@ -1456,9 +1484,8 @@
     // Add function to display many markers on map
     function addAllParkingMarkers(spots) {
       spots.forEach((spot, index) => {
-        // Generate random status for demo (in real app, this would come from API)
-        const statusOptions = ['free', 'occupied', 'reserved'];
-        const randomStatus = statusOptions[Math.floor(Math.random() * statusOptions.length)];
+        // Use the status from the spot (added during search)
+        const randomStatus = spot.status || 'free';
         
         // Marker colors based on status
         const markerColors = {
