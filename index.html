@@ -73,10 +73,100 @@
       background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(10px);
       border-radius: 16px;
-      padding: 2rem;
+      padding: 0;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
     }
 
+    /* Tab Navigation Styles */
+    .tab-navigation {
+      display: flex;
+      background: rgba(102, 126, 234, 0.05);
+      border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+    }
+
+    .tab-button {
+      flex: 1;
+      padding: 1.5rem 2rem;
+      background: none;
+      border: none;
+      color: #666;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .tab-button:hover {
+      background: rgba(102, 126, 234, 0.1);
+      color: #667eea;
+    }
+
+    .tab-button.active {
+      background: white;
+      color: #667eea;
+      border-bottom: 3px solid #667eea;
+    }
+
+    .tab-button.active::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+    }
+
+    /* Tab Content Styles */
+    .tab-content {
+      display: none;
+      padding: 2rem;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .tab-placeholder {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: #666;
+    }
+
+    .tab-placeholder h3 {
+      color: #667eea;
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+    }
+
+    .tab-placeholder p {
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .coming-soon {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: bold;
+      font-size: 1.2rem;
+      margin-top: 1rem;
+    }
+
+    /* Existing styles for the parking search functionality */
     .search-section {
       margin-bottom: 2rem;
     }
@@ -267,6 +357,15 @@
         padding: 0 1rem;
       }
 
+      .tab-button {
+        padding: 1rem;
+        font-size: 0.9rem;
+      }
+
+      .tab-content {
+        padding: 1rem;
+      }
+
       .search-input-group {
         flex-direction: column;
       }
@@ -291,57 +390,93 @@
   <div class="main-container">
     <!-- Main Content -->
     <div class="main-content">
-      <h3>🅿️ Find Parking Spots</h3>
-      
-      <!-- Search Section -->
-      <div class="search-section">
-        <h4>Search for Parking</h4>
-        <div class="search-input-group">
-          <input type="text" id="parkingLocationInput" placeholder="Enter location or address" />
-          <select id="parkingTypeSelect">
-            <option value="all">All Types</option>
-            <option value="street">Street Parking</option>
-            <option value="garage">Parking Garage</option>
-            <option value="lot">Parking Lot</option>
-            <option value="private">Private Parking</option>
-          </select>
-          <button id="searchParkingBtn">Search Parking</button>
-        </div>
-        
-        <div class="parking-filters">
-          <label>Max Distance: 
-            <select id="maxDistanceSelect">
-              <option value="0.5">0.5 km</option>
-              <option value="1">1 km</option>
-              <option value="2" selected>2 km</option>
-              <option value="5">5 km</option>
-              <option value="10">10 km</option>
-              <option value="20">20 km (All Melbourne)</option>
-            </select>
-          </label>
-          
-          <label>Price Range: 
-            <select id="priceRangeSelect">
-              <option value="all">Any Price</option>
-              <option value="free">Free</option>
-              <option value="low">$0-$5/hour</option>
-              <option value="medium">$5-$15/hour</option>
-              <option value="high">$15+/hour</option>
-            </select>
-          </label>
-        </div>
-        
-        <div id="parkingSearchStatus" class="info">Ready to search for parking spots across all Melbourne areas</div>
-        
-        <!-- Google Map for Parking Search -->
-        <div id="parkingMap" class="map-container"></div>
+      <!-- Tab Navigation -->
+      <div class="tab-navigation">
+        <button class="tab-button active" data-tab="parking">
+          🅿️ Find Parking Spots
+        </button>
+        <button class="tab-button" data-tab="statistics">
+          📊 Statistics
+        </button>
+        <button class="tab-button" data-tab="eco">
+          🌱 Eco Planning
+        </button>
       </div>
 
-      <!-- Parking Results Section -->
-      <div id="parkingResultsSection" class="results-section" style="display: none;">
-        <h4>Available Parking Spots</h4>
-        <div id="parkingResultsCount" class="results-count"></div>
-        <div id="parkingResultsGrid" class="parking-results-grid"></div>
+      <!-- Tab Content: Find Parking Spots -->
+      <div class="tab-content active" id="parking-tab">
+        <h3>🅿️ Find Parking Spots</h3>
+        
+        <!-- Search Section -->
+        <div class="search-section">
+          <h4>Search for Parking</h4>
+          <div class="search-input-group">
+            <input type="text" id="parkingLocationInput" placeholder="Enter location or address" />
+            <select id="parkingTypeSelect">
+              <option value="all">All Types</option>
+              <option value="street">Street Parking</option>
+              <option value="garage">Parking Garage</option>
+              <option value="lot">Parking Lot</option>
+              <option value="private">Private Parking</option>
+            </select>
+            <button id="searchParkingBtn">Search Parking</button>
+          </div>
+          
+          <div class="parking-filters">
+            <label>Max Distance: 
+              <select id="maxDistanceSelect">
+                <option value="0.5">0.5 km</option>
+                <option value="1">1 km</option>
+                <option value="2" selected>2 km</option>
+                <option value="5">5 km</option>
+                <option value="10">10 km</option>
+                <option value="20">20 km (All Melbourne)</option>
+              </select>
+            </label>
+            
+            <label>Price Range: 
+              <select id="priceRangeSelect">
+                <option value="all">Any Price</option>
+                <option value="free">Free</option>
+                <option value="low">$0-$5/hour</option>
+                <option value="medium">$5-$15/hour</option>
+                <option value="high">$15+/hour</option>
+              </select>
+            </label>
+          </div>
+          
+          <div id="parkingSearchStatus" class="info">Ready to search for parking spots across all Melbourne areas</div>
+          
+          <!-- Google Map for Parking Search -->
+          <div id="parkingMap" class="map-container"></div>
+        </div>
+
+        <!-- Parking Results Section -->
+        <div id="parkingResultsSection" class="results-section" style="display: none;">
+          <h4>Available Parking Spots</h4>
+          <div id="parkingResultsCount" class="results-count"></div>
+          <div id="parkingResultsGrid" class="parking-results-grid"></div>
+        </div>
+      </div>
+
+      <!-- Tab Content: Statistics -->
+      <div class="tab-content" id="statistics-tab">
+        <div class="tab-placeholder">
+          <h3>📊 Parking Statistics</h3>
+          <p>Analytics and insights about parking usage</p>
+          <p>Track your parking history and patterns</p>
+          <div class="coming-soon">Coming Soon</div>
+        </div>
+      </div>
+
+      <!-- Tab Content: Eco Planning -->
+      <div class="tab-content" id="eco-tab">
+        <div class="tab-placeholder">
+          <h3>🌱 Eco-Friendly Planning</h3>
+          <p>Sustainable parking and transportation options</p>
+          <p>Carbon footprint tracking and green routes</p>
+          <div class="coming-soon">Coming Soon</div>
+        </div>
       </div>
     </div>
   </div>
@@ -350,6 +485,26 @@
   <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDwXzBClakuchQF0zxKk0UBkPhLX--d7tg&libraries=places&callback=initMaps"></script>
 
   <script>
+    // Tab functionality
+    function initTabs() {
+      const tabButtons = document.querySelectorAll('.tab-button');
+      const tabContents = document.querySelectorAll('.tab-content');
+
+      tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const targetTab = button.getAttribute('data-tab');
+          
+          // Remove active class from all buttons and contents
+          tabButtons.forEach(btn => btn.classList.remove('active'));
+          tabContents.forEach(content => content.classList.remove('active'));
+          
+          // Add active class to clicked button and corresponding content
+          button.classList.add('active');
+          document.getElementById(`${targetTab}-tab`).classList.add('active');
+        });
+      });
+    }
+
     // Google Maps Configuration
     let parkingMap;
     let placesService;
@@ -450,7 +605,7 @@
     async function loadParkingData() {
       debugLog('Starting parking data load process...');
       
-      // S3 URL for the CSV file - your actual S3 URL
+      // S3 URL for the CSV file
       const S3_CSV_URL = 'https://smartrouteparking.s3.ap-southeast-2.amazonaws.com/on-street-parking-bays.csv';
       // You can also use other cloud storage services:
       // const S3_CSV_URL = 'https://your-bucket.s3.ap-southeast-2.amazonaws.com/parking-data.csv';
@@ -658,49 +813,6 @@
       }
     }
 
-    // Show error message if real data cannot be loaded
-    function showS3Instructions() {
-      debugLog('⚠️  Real CSV data could not be loaded from S3 or local file');
-      
-      // Clear any existing data
-      melbourneParkingData = [];
-      
-      debugLog('No sample data created - app will only work with real CSV data');
-      
-      // Show detailed error message with troubleshooting steps
-      setTimeout(() => {
-        parkingSearchStatus.innerHTML = `
-          <strong>❌ Unable to Load Real Parking Data from S3</strong><br><br>
-          
-          <strong>Current S3 URL:</strong><br>
-          <code>https://smartrouteparking.s3.ap-southeast-2.amazonaws.com/on-street-parking-bays.csv</code><br><br>
-          
-          <strong>Common Issues & Solutions:</strong><br>
-          1. <strong>CORS Policy:</strong> S3 bucket needs CORS configuration to allow web access<br>
-          2. <strong>Public Access:</strong> Ensure the CSV file has public read permissions<br>
-          3. <strong>File Location:</strong> Verify the file was uploaded to the correct path<br>
-          4. <strong>File Format:</strong> Ensure it's a valid CSV file<br><br>
-          
-          <strong>S3 CORS Configuration Needed:</strong><br>
-          <code>
-          {<br>
-          &nbsp;&nbsp;"AllowedOrigins": ["*"],<br>
-          &nbsp;&nbsp;"AllowedMethods": ["GET"],<br>
-          &nbsp;&nbsp;"AllowedHeaders": ["*"]<br>
-          }
-          </code><br><br>
-          
-          <strong>Check browser console (F12) for detailed error messages.</strong><br>
-          <small>App requires real data - no sample data available.</small>
-        `;
-        parkingSearchStatus.className = 'error';
-        
-        // Hide results section since no data is available
-        parkingResultsSection.style.display = 'none';
-      }, 1000);
-    }
-
-    // Remove the old sample data function since we now have comprehensive sample data in showCSVInstructions
 
     // Handle parking location selection
     function onParkingLocationSelected() {
@@ -953,8 +1065,6 @@
       });
 
       parkingResultsGrid.innerHTML = resultsHTML;
-
-      // Don't add markers here since we're using addAllParkingMarkers for better coverage
     }
 
     // Load real parking data for Melbourne (ALL areas) - ONLY real data, no samples
@@ -1122,6 +1232,9 @@
     // Initialize app when page loads
     document.addEventListener('DOMContentLoaded', function() {
       debugLog('Smart Parking Search app initialized');
+      
+      // Initialize tabs
+      initTabs();
       
       // If Google Maps fails to load, show fallback
       setTimeout(() => {
