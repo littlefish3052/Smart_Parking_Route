@@ -1749,9 +1749,23 @@
 
    const maxDistance = parseFloat(document.getElementById('maxDistanceSelect').value);
 
+   // Adjust map zoom based on distance filter
+   let zoomLevel = 10;
+   if (maxDistance <= 0.5) zoomLevel = 17;
+   else if (maxDistance <= 1) zoomLevel = 16;
+   else if (maxDistance <= 2) zoomLevel = 15;
+   else if (maxDistance <= 5) zoomLevel = 13;
+   else if (maxDistance <= 10) zoomLevel = 12;
+   else if (maxDistance <= 20) zoomLevel = 10;
+
+   // Update map center and zoom
+   parkingMap.setCenter(location);
+   parkingMap.setZoom(zoomLevel);
+
    // Update status
    parkingSearchStatus.innerText = '🔍 Finding parking spots nearby...';
    parkingSearchStatus.className = 'info';
+
 
    // Use CSV data to find nearby parking spots
    const nearbySpots = findNearbyParkingSpots(location.lat(), location.lng(), maxDistance);
@@ -1798,6 +1812,7 @@
 
      // Limit to top 20 results for better performance
      const topResults = filteredSpots.slice(0, 20);
+     
 
      displayCSVParkingResults(topResults, location);
 
@@ -1819,7 +1834,7 @@
    // Re-enable search button
    searchParkingBtn.disabled = false;
  }
-
+ 
  function displayCSVParkingResults(spots, searchLocation) {
    // Update results count
    const availabilityFilter = document.getElementById('availabilitySelect').value;
