@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Melbourne Population × Vehicle Ownership (Interactive)</title>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<style>
+:root { --gap: 16px; }
+body { font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif; margin: var(--gap); }
+.row { display:flex; gap:var(--gap); flex-wrap:wrap; }
+.card { border:1px solid #e5e7eb; border-radius:14px; padding:14px; box-shadow:0 2px 8px rgba(0,0,0,.05); background:#fff; flex:1; min-width:300px; }
+.controls { max-width:380px; }
+label { display:block; margin-top:10px; font-size:14px; color:#374151; }
+select, input, button { width:100%; padding:10px; border:1px solid #d1d5db; border-radius:10px; font-size:14px; }
+button { background:#111827; color:#fff; cursor:pointer; }
+.kpi { font-size:22px; font-weight:700; }
+.muted { color:#6b7280; font-size:13px; }
+h2 { margin:6px 0 10px 0; }
+.footer { margin-top: 24px; font-size: 13px; color:#374151; }
+.footer a { color:#1f6feb; text-decoration: none; }
+.footer a:hover { text-decoration: underline; }
+@media (max-width:700px) { .row { flex-direction:column; } .card { min-width:auto; } body { margin:10px; } }
+</style></head>
+<body>
+<h2>Melbourne Population × Vehicle Ownership (2001–2021)</h2>
+<p class="muted">Pick a region and year, enter your household size and vehicles. See how you compare to the regional average. The right chart shows the distribution of households by number of vehicles in the selected region & year.</p>
+<div class="row">
+  <div class="card controls">
+    <label>Region</label>
+    <select id="region"><option>City of Melbourne</option><option>Suburb Melbourne</option><option>Greater Melbourne (All)</option></select>
+    <label>Year</label><select id="year"></select>
+    <label>Household size</label><input id="hhsize" type="number" min="1" value="2"/>
+    <label>Vehicles in your household</label><select id="hhcars"><option value="0">0</option><option value="1" selected>1</option><option value="2">2</option><option value="3">3+</option></select>
+    <div style="margin-top:12px;"><button onclick="update()">Update</button></div>
+  </div>
+  <div class="card">
+    <h3>At a glance</h3>
+    <div>Population: <span class="kpi" id="pop"></span></div>
+    <div>Vehicles per 1,000 people: <span class="kpi" id="vp1000"></span></div>
+    <div>Your intensity (cars per 1,000 in household): <span class="kpi" id="hhvp1000"></span></div>
+    <div>Your percentile in this region: <span class="kpi" id="percentile"></span></div>
+    <div class="muted" id="compareText" style="margin-top:6px;"></div>
+  </div>
+</div>
+<div class="row" style="margin-top:var(--gap);">
+  <div id="chart1" class="card" style="min-height:360px;"></div>
+  <div id="chart2" class="card" style="min-height:360px;"></div>
+</div>
+<div class="footer card">
+  <strong>Data sources:</strong>
+  <ul>
+    <li>Australian Bureau of Statistics (ABS) — Regional population 2021:
+      <a href="https://www.abs.gov.au/statistics/people/population/regional-population/2021/32180DS0001_2001-21.xlsx" target="_blank" rel="noopener">ABS 2001–21 dataset</a>
+    </li>
+    <li>City of Melbourne — Number of cars per household:
+      <a href="https://profile.id.com.au/melbourne/car-ownership?EndYear=2011&DataType=EN" target="_blank" rel="noopener">profile.id: Car ownership</a>
+    </li>
+  </ul>
+  <div class="muted">Notes: Percentile is approximated using the distribution of households by number of vehicles (0 / 1 / 2 / 3+). It indicates the share of households with <em>equal or fewer</em> cars than your selection in the chosen region and year.</div>
+</div>
+<script>
+const DATA = {"years": [2001, 2006, 2011, 2016, 2021], "regions": {"City of Melbourne": {"pop_series": {"2001": 431549, "2006": 480345, "2011": 532351, "2016": 633471, "2021": 627671}, "area_km2": 142.5, "vehicle_categories": {"No motor vehicles": {"2001": 7752, "2006": 12372, "2011": 17430, "2016": 28140, "2021": 32707}, "1 motor vehicle": {"2001": 9594, "2006": 13564, "2011": 16862, "2016": 21703, "2021": 29957}, "2 motor vehicles": {"2001": 3954, "2006": 5112, "2011": 5594, "2016": 6210, "2021": 6940}, "3 or more motor vehicles": {"2001": 792, "2006": 917, "2011": 1099, "2016": 1238, "2021": 1318}}, "vehicles_total": {"2001": 14340, "2006": 19593, "2011": 23555, "2016": 29151, "2021": 38215}, "vehicles_per_1000": {"2001": 33.2291350460782, "2006": 40.78943259532211, "2011": 44.24712266906609, "2016": 46.017891900339556, "2021": 60.88380696256478}}, "Suburb Melbourne": {"pop_series": {"2001": 3068700, "2006": 3280415, "2011": 3637015, "2016": 4080916, "2021": 4348486}, "area_km2": 9850.3, "vehicle_categories": {"No motor vehicles": {"2001": 111069, "2006": 115704, "2011": 116788, "2016": 113436, "2021": 120368}, "1 motor vehicle": {"2001": 426329, "2006": 443491, "2011": 489269, "2016": 530464, "2021": 630966}, "2 motor vehicles": {"2001": 442744, "2006": 476241, "2011": 525263, "2016": 572511, "2021": 645910}, "3 or more motor vehicles": {"2001": 173821, "2006": 195578, "2011": 228809, "2016": 263828, "2021": 302553}}, "vehicles_total": {"2001": 1042894, "2006": 1115310, "2011": 1243341, "2016": 1366803, "2021": 1579429}, "vehicles_per_1000": {"2001": 339.84879590706163, "2006": 339.99051949219836, "2011": 341.857539768189, "2016": 334.9255412265286, "2021": 363.2135414486789}}, "Greater Melbourne (All)": {"pop_series": {"2001": 3500249, "2006": 3760760, "2011": 4169366, "2016": 4714387, "2021": 4976157}, "area_km2": 9992.8, "vehicle_categories": {"No motor vehicles": {"2001": 118821, "2006": 128076, "2011": 134218, "2016": 141576, "2021": 153075}, "1 motor vehicle": {"2001": 435923, "2006": 457055, "2011": 506131, "2016": 552167, "2021": 660923}, "2 motor vehicles": {"2001": 446698, "2006": 481353, "2011": 530857, "2016": 578721, "2021": 652850}, "3 or more motor vehicles": {"2001": 174613, "2006": 196495, "2011": 229908, "2016": 265066, "2021": 303871}}, "vehicles_total": {"2001": 1057234, "2006": 1134903, "2011": 1266896, "2016": 1395954, "2021": 1617644}, "vehicles_per_1000": {"2001": 302.0453687723359, "2006": 301.7749071996086, "2011": 303.85818851115494, "2016": 296.1050927724007, "2021": 325.078971583895}}}, "categories": ["No motor vehicles", "1 motor vehicle", "2 motor vehicles", "3 or more motor vehicles"]};
+const CATS = DATA.categories;
+const YEAR_SEL = document.getElementById('year');
+DATA.years.forEach(y=>{ const o=document.createElement('option'); o.value=y; o.textContent=y; YEAR_SEL.appendChild(o); });
+YEAR_SEL.value = 2021;
+function numberWithCommas(x){return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');}
+function carSelectionToCategory(val){ if(val===0) return "No motor vehicles"; if(val===1) return "1 motor vehicle"; if(val===2) return "2 motor vehicles"; return "3 or more motor vehicles"; }
+function computePercentile(region,year,hhcars){
+  const cat=carSelectionToCategory(hhcars);
+  const order=["No motor vehicles","1 motor vehicle","2 motor vehicles","3 or more motor vehicles"];
+  const counts=order.map(c=>DATA.regions[region].vehicle_categories[c][year]);
+  const total=counts.reduce((a,b)=>a+b,0);
+  let cum=0;
+  for(let i=0;i<order.length;i++){ cum+=counts[i]; if(order[i]===cat) break; }
+  return total>0 ? (cum/total*100) : 0;
+}
+function drawTrend(region){
+  const years=DATA.years;
+  const pop=years.map(y=>DATA.regions[region].pop_series[y]);
+  const vp1000=years.map(y=>DATA.regions[region].vehicles_per_1000[y]);
+  Plotly.newPlot('chart1',[
+    {x:years,y:pop.map(v=>v/1000),mode:'lines+markers',name:'Population (thousands)',yaxis:'y1'},
+    {x:years,y:vp1000,mode:'lines+markers',name:'Vehicles per 1,000',yaxis:'y2'}
+  ],{title:region+' — Population & Vehicles/1,000',yaxis:{title:'Population (thousands)'},yaxis2:{title:'Vehicles per 1,000',overlaying:'y',side:'right'},margin:{t:40,l:50,r:45,b:40},legend:{orientation:'h'}},{responsive:true});
+}
+function drawCategoryBar(region,year,selectedCars){
+  const cats=CATS;
+  const vals=cats.map(c=>DATA.regions[region].vehicle_categories[c][year]);
+  const colors=cats.map(c=> c===carSelectionToCategory(selectedCars) ? 'rgba(31,119,180,0.9)' : 'rgba(200,200,200,0.8)');
+  Plotly.newPlot('chart2',[{x:cats,y:vals,type:'bar',name:'Households',marker:{color:colors}}],{title:region+' — Household Vehicle Count ('+year+')',yaxis:{title:'Number of households'},margin:{t:40,l:50,r:20,b:60}},{responsive:true});
+}
+function update(){
+  const region=document.getElementById('region').value;
+  const year=document.getElementById('year').value;
+  const hhsize=Math.max(1,parseInt(document.getElementById('hhsize').value||'1'));
+  const hhcars=parseInt(document.getElementById('hhcars').value);
+  const pop=DATA.regions[region].pop_series[year];
+  const vp1000=DATA.regions[region].vehicles_per_1000[year];
+  const hh_vp1000=(hhcars/hhsize)*1000;
+  document.getElementById('pop').textContent=numberWithCommas(pop);
+  document.getElementById('vp1000').textContent=vp1000.toFixed(1);
+  document.getElementById('hhvp1000').textContent=hh_vp1000.toFixed(0);
+  const pct=computePercentile(region,year,hhcars);
+  document.getElementById('percentile').textContent=pct.toFixed(0)+'%';
+  let compare='';
+  if(hh_vp1000>vp1000) compare='Your household vehicle intensity is above the regional average — likely to rely more on private car trips.';
+  else if(Math.abs(hh_vp1000-vp1000)<30) compare='Your household vehicle intensity is close to the regional average.';
+  else compare='Your household vehicle intensity is below the regional average — more likely to use public/active transport.';
+  document.getElementById('compareText').textContent=compare;
+  drawTrend(region);
+  drawCategoryBar(region,year,hhcars);
+}
+update();
+document.getElementById('region').addEventListener('change',update);
+document.getElementById('year').addEventListener('change',update);
+document.getElementById('hhsize').addEventListener('input',update);
+document.getElementById('hhcars').addEventListener('change',update);
+</script>
+</body></html>
